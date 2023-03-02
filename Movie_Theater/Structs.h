@@ -20,9 +20,9 @@ typedef struct Movie {
 } *MoviePtr;
 
 // MoviesHanler
-typedef struct MoveHanler {
+typedef struct MoveHandler {
 	LLLManager movieLists[NUM_OF_CHARS];
-} *MoveHanlerPtr;
+} *MoveHandlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {
