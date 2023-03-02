@@ -43,11 +43,11 @@ typedef struct Screening {
 
 // Week and Day - schedule
 typedef struct DaySchedule {
-	ScreeningPtr screeningsSchedule[SCREENING_HOURS_PER_DAY][NUM_OF_THEATERS];
+	ScreeningPtr screeningsSchedule[NUM_OF_THEATERS][SCREENING_HOURS_PER_DAY];
 } *DaySchedulePtr;
 
 typedef struct WeekSchedule {
-	DaySchedule weekSchedule[NUM_OF_DAYS_IN_WEEK];
+	DaySchedulePtr weekSchedule[NUM_OF_DAYS_IN_WEEK];
 } *WeekSchedulePtr;
 
 
