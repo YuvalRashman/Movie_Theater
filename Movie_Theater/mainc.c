@@ -3,9 +3,11 @@
 #include "LLLHandler.h"
 #include "Structs.h"
 
-//Project Movie Theatre
+void FindMoviesByDay(us day, Movie movie)
+{
+	for (int offset = 0; offset < NUM_; offset++)
+	{
 
+	}
 
-//Project
-//sdasdsadasdassdasdsad
-//dsadasdas
+}
