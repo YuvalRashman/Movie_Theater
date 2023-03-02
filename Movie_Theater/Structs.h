@@ -12,11 +12,17 @@ typedef char Mask;
 typedef unsigned short us;
 
 // Movie
-typedef struct Moive {
+typedef struct Movie {
+	us MovieId;
 	String name;
 	float length;
 	Node* days[NUM_OF_DAYS_IN_WEEK];
 } *MoviePtr;
+
+// MoviesHanler
+typedef struct MoveHanler {
+	LLLManager movieLists[NUM_OF_CHARS];
+} *MoveHanlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {
@@ -27,7 +33,7 @@ typedef struct MovieTheater {
 
 // Screenings
 typedef struct Screening {
-	us movieId;
+	MoviePtr movie;
 	us theaterId;
 	us hour;
 	Mask* seats;

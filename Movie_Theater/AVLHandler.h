@@ -5,6 +5,7 @@
 
 typedef short Bool;
 typedef unsigned short us;
+
 typedef struct node {
     void* info;
     us height;
@@ -158,9 +159,10 @@ void* DupInfo(void* info)
     ScreeningPtr duped = (ScreeningPtr)malloc(sizeof(Screening));
     
     duped->hour = curr->hour;
-    duped->movieId = curr->movieId;
+    duped->movie = curr->movie;
     duped->seatsLeft = curr->seatsLeft;
     duped->seats = curr->seats;
+    duped->theaterId = curr->theaterId;
 
     return (void*) duped;
 }
