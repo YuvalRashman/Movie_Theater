@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\Structs.h>
+
+typedef short Bool;
 
 typedef struct LLL {
 	void* info;
