@@ -4,6 +4,7 @@
 #define FALSE 0
 
 #define NUM_OF_DAYS_IN_WEEK 7
+#define NUM_OF_CHARS 26
 
 #define ONE 1
 #define TWO 2

@@ -1,6 +1,19 @@
-//Project Movie Theatre
+#include "AVLHandler.h"
+#include "CONSTANTS.h"
+#include "LLLHandler.h"
+#include "Structs.h"
 
 
-//Project
-//sdasdsadasdassdasdsad
-//dsadasdas
+void FindMoviesByDay(us day, Movie movie)
+{
+	for (int offset = 0; offset < NUM_; offset++)
+	{
+
+	}
+
+}
+
+
+
+
+

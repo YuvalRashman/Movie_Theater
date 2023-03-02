@@ -2,8 +2,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\AVLHandler.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\CONSTANTS.h>
+#include "AVLHandler.h"
+#include "CONSTANTS.h"
+#include "LLLHandler.h"
 
 // String
 typedef char* String;
@@ -20,9 +21,9 @@ typedef struct Movie {
 } *MoviePtr;
 
 // MoviesHanler
-typedef struct MoveHanler {
+typedef struct MovieHandler {
 	LLLManager movieLists[NUM_OF_CHARS];
-} *MoveHanlerPtr;
+} *MovieHandlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {
