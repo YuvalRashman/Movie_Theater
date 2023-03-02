@@ -2,9 +2,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\AVLHandler.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\CONSTANTS.h>
-#include <C:\Users\nadavru\Documents\GitHub\Movie_Theater\Movie_Theater\LLLHandler.h>
+#include "AVLHandler.h"
+#include "CONSTANTS.h"
+#include "LLLHandler.h"
 
 // String
 typedef char* String;
