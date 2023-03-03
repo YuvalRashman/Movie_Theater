@@ -50,8 +50,8 @@ typedef struct WeekSchedule {
 	DaySchedulePtr weekSchedule[NUM_OF_DAYS_IN_WEEK];
 } *WeekSchedulePtr;
 
-enum DAY {
-	SUNDAY, MONDAY, TUESDAY, THURSDAY, FRIDAY, SATURDAY;
+	typedef	enum DaysOfWeek {
+	SUNDAY = 1, MONDAY = 2, TUESDAY = 3, WEDNESDAY = 4, THURSDAY = 5, FRIDAY = 6, SATURDAY = 7
 };
 
 typedef struct DaySummery {
