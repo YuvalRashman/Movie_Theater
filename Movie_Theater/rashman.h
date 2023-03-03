@@ -1,4 +1,5 @@
 #include "AVLHandler.h"
+#include "Structs.h"
 
 ScreeningPtr SearchScreeningByMovieId(int movieId);
 
@@ -13,10 +14,10 @@ Node* ClosestSmallerKeyRec(Node* node, int key, Node *best) {
         }
         return best;
     }
-    if (node->key < key) {
+    if (node->key < key) { // if less need to change the best
         return ClosestSmallerKey(node->right, key, node);
     }
-    return ClosestSmallerKey(node->left, key, best);
+    return ClosestSmallerKey(node->left, key, best); // need to check the left sub tree
 }
 
 Node* ClosestSmallerKey(Node* node, int key) {
@@ -27,6 +28,6 @@ Node* ClosestSmallerKey(Node* node, int key) {
 ScreeningPtr SearchScreeningByMovieId(int movieId, int day, int hour) {
 	MoviePtr moviePtr = movies[movieId];
 	Node* screenings = moviePtr->days[day];
-	Search();
+	return ClosestSmallerKey(screenings, hour)->info;
 }
 
