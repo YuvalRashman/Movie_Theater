@@ -30,6 +30,8 @@ typedef struct MovieTheater {
 	us rowNum;
 	us ColNum;
 	us theaterId;
+	us* rowsSeats; //diynamic array
+	us totalSeats;
 } *MovieTheaterPtr;
 
 // Screenings
