@@ -1,5 +1,6 @@
 ﻿#include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "AVLHandler.h"
 #include "CONSTANTS.h"
 #include "LLLHandler.h"
@@ -7,8 +8,22 @@
 
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 
+// **** Usefull methods ****
 
-// Bussiest hour
+// O(n) - אורך הקלט הוא גודל המערך
+us FindMaxOffset(int* vecPtr, int* vecEndPtr, us delta)
+{
+	us maxOffset = INIT_VALUE;
+	int* iterPtr = vecPtr + delta;
+
+	while (iterPtr <= vecEndPtr)
+	{
+		maxOffset = *iterPtr > *(vecPtr + maxOffset) ? iterPtr - vecPtr : maxOffset;
+		iterPtr += delta;
+	}
+
+	return maxOffset;
+}
 
 // O(n) - אורך הקלט כמות האיברים במערך
 int SumVec(ScreeningPtr vecStartPtr, ScreeningPtr vecEndPtr, us delta)
@@ -26,68 +41,166 @@ int SumVec(ScreeningPtr vecStartPtr, ScreeningPtr vecEndPtr, us delta)
 	return sum;
 }
 
-// O(n*m) - כמות הטורים mכמות השורות ו n
-void AddSumCols(ScreeningPtr** matrix, us rowLen, us colLen, int* vecPtr)
-{
-	us currCol;
+// **** Extract summery of week / day ****
 
-	for (currCol = INIT_VALUE; currCol <= rowLen; currCol++)
+// O(n)
+void InitSummery(int** summeryPtrStart, int** summeryPtrEnd, int moviesNum)
+{
+	int** iterPtr = summeryPtrStart;
+
+	while (iterPtr <= summeryPtrEnd)
 	{
-		*(vecPtr + currCol) += SumVec(matrix[INIT_VALUE][currCol], matrix[colLen - ONE][currCol], rowLen) / NUM_OF_DAYS_IN_WEEK;
+		*iterPtr = (int*)calloc(moviesNum, sizeof(int));
+		iterPtr++;
 	}
 }
 
-// O(n) - אורך הקלט הוא גודל המערך
-us FindMaxOffset(int* vecPtr, int* vecEndPtr, us delta)
+// O(n)
+void CaclSumOfDay(DaySchedulePtr dayScreenings, int** daySummery, int moviesNum)
 {
-	us maxOffset = INIT_VALUE;
-	int* iterPtr = vecPtr + delta;
+	ScreeningPtr* iterPtr = *dayScreenings->screeningsSchedule;
+	ScreeningPtr* endPtr = iterPtr + NUM_OF_THEATERS * SCREENING_HOURS_PER_DAY - ONE;
+	int currHour;
+	int seatsTaken;
+	int currMovie;
 
-	while (iterPtr <= vecEndPtr)
+	while (iterPtr <= endPtr)
 	{
-		maxOffset = *iterPtr > *(vecPtr + maxOffset) ? iterPtr - vecPtr : maxOffset;
-		iterPtr += delta;
-	}
+		// Find the seats sold in the current screening
+		seatsTaken = theaters[(*iterPtr)->theaterId]->ColNum * theaters[(*iterPtr)->theaterId]->rowNum - (*iterPtr)->seatsLeft;
 
-	return maxOffset;
+		// Find current hour
+		currHour = iterPtr % SCREENING_HOURS_PER_DAY;
+		currMovie = (*iterPtr)->movie->MovieId;
+
+		if ((*iterPtr)->hour == currHour)
+		{
+			// Update the sum
+			*(*(daySummery + currHour) + currMovie) += seatsTaken;
+
+			// Update sum of all sums of movies per hour
+			*(*(daySummery + currHour) + moviesNum) += seatsTaken;
+
+			// Update sum of all sums of hours per movie
+			*(*(daySummery + SCREENING_HOURS_PER_DAY) + currMovie) += seatsTaken;
+
+			// Update the sum of the day
+			*(*(daySummery + SCREENING_HOURS_PER_DAY) + moviesNum) += seatsTaken;
+		}
+
+		iterPtr++;
+	}
 }
 
-// O(1) - אין אורך קלט, הפונקציה עוברת על מספר קבוע של מטריצות אשר מורכבות ממימדים באורכים קבועים!
-us FindBussiestHour(WeekSchedulePtr weekStats)
-{
+// O(n)
+void MakeDaySummery(DaySchedulePtr dayScreenings, int moviesNum) {
+	DaySummery daySummery;
+	InitSummery(daySummery.summeryMatrix, daySummery.summeryMatrix + SCREENING_HOURS_PER_DAY, moviesNum + ONE);
+
+	CaclSumOfDay(dayScreenings, daySummery.summeryMatrix, moviesNum);
+
+	return daySummery;
+}
+
+// O(n)
+WeekSummery MakeWeekSummery(WeekSchedulePtr weekStats, int moviesNum) {
+	WeekSummery weekSummery;
 	us currOffset;
 	DaySchedulePtr currDaySchedule;
-	int sumHours[NUM_OF_DAYS_IN_WEEK] = { INIT_VALUE };
 
-
+	// Loop on week's screenings history
 	for (currOffset = ZERO; currOffset < NUM_OF_DAYS_IN_WEEK; currOffset++)
 	{
 		currDaySchedule = weekStats->weekSchedule[currOffset];
-		AddSumCols(currDaySchedule->screeningsSchedule, SCREENING_HOURS_PER_DAY, NUM_OF_THEATERS, sumHours);
+		weekSummery.weekSummery[currOffset] = MakeDaySummery(currDaySchedule, moviesNum);
 	}
 
-	return FindMaxOffset(sumHours, sumHours + NUM_OF_DAYS_IN_WEEK - ONE, ONE);
+	return weekSummery;
 }
 
+// **** conclusions on the summery ****
 
-// Bussiest day
+// O(1)
+DAY FindBussiestDay(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
+	DAY bussiestDay = SUNDAY;
+	int max = weekSummeryPtr->weekSummery[INIT_VALUE].summeryMatrix[SCREENING_HOURS_PER_DAY][moviesNum];
+	int currOffset;
 
-// O(1) - אין אורך קלט, הפונקציה עוברת על מספר קבוע של מטריצות אשר מורכבות ממימדים באורכים קבועים!
-us FindBussiestDay(WeekSchedulePtr weekStats)
-{
-	us currOffset;
-	DaySchedulePtr currDaySchedule;
-	int sumPerDay[NUM_OF_DAYS_IN_WEEK] = { INIT_VALUE };
+	int temp;
 
 
-	for (currOffset = ZERO; currOffset < NUM_OF_DAYS_IN_WEEK; currOffset++)
+	for (currOffset = ONE; currOffset < NUM_OF_DAYS_IN_WEEK; currOffset++)
 	{
-		currDaySchedule = weekStats->weekSchedule[currOffset];
-		sumPerDay[currOffset] += SumVec(currDaySchedule->screeningsSchedule[INIT_VALUE][INIT_VALUE], 
-										currDaySchedule->screeningsSchedule[NUM_OF_THEATERS - ONE][SCREENING_HOURS_PER_DAY - ONE],
-										ONE);
+		temp = weekSummeryPtr->weekSummery[currOffset].summeryMatrix[SCREENING_HOURS_PER_DAY][moviesNum];
+		bussiestDay = temp > max ? currOffset : bussiestDay;
 	}
 
-	return FindMaxOffset(sumHours, sumHours + NUM_OF_DAYS_IN_WEEK - ONE, ONE);
+	return bussiestDay;
 }
 
+// O(1)
+us FindBussiestHour(WeekSummeryPtr weekSummeryPtr) {
+	us hourOffset;
+	us dayOffset;
+	int hoursSum[SCREENING_HOURS_PER_DAY] = { INIT_VALUE };
+
+	for (dayOffset = INIT_VALUE; dayOffset < NUM_OF_DAYS_IN_WEEK; dayOffset++)
+	{
+		for (hourOffset = INIT_VALUE; hourOffset < SCREENING_HOURS_PER_DAY; hourOffset++)
+		{
+			hoursSum[hourOffset] += weekSummeryPtr->weekSummery[dayOffset].summeryMatrix[SCREENING_HOURS_PER_DAY][hourOffset];
+		}
+	}
+
+	return FindMaxOffset(hoursSum, hoursSum + SCREENING_HOURS_PER_DAY - ONE, ONE);
+}
+
+// O(n)
+void FindMostWantedMovie(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
+	us movieOffset;
+	us dayOffset;
+	int* moviesSum = (int*)calloc(moviesNum, sizeof(int));
+
+	for (dayOffset = INIT_VALUE; dayOffset < NUM_OF_DAYS_IN_WEEK; dayOffset++)
+	{
+		for (movieOffset = INIT_VALUE; movieOffset < moviesNum; movieOffset++)
+		{
+			moviesSum[movieOffset] += weekSummeryPtr->weekSummery[dayOffset].summeryMatrix[movieOffset][moviesNum];
+		}
+	}
+
+	return FindMaxOffset(moviesSum, moviesSum + moviesNum - ONE, ONE);
+}
+
+// O(1)
+void ExpectationsPerDay(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
+	int currOffset;
+	int temp;
+	double mean = INIT_VALUE, std = INIT_VALUE, tScore, E, lower, upper;
+
+	// Calc mean and STD
+	for (currOffset = INIT_VALUE; currOffset < NUM_OF_DAYS_IN_WEEK; currOffset++)
+	{
+
+		temp = weekSummeryPtr->weekSummery[currOffset].summeryMatrix[SCREENING_HOURS_PER_DAY][moviesNum];
+		mean += temp;
+		std += pow(temp - mean, TWO);
+	}
+
+	mean /= NUM_OF_DAYS_IN_WEEK;
+	std /= (NUM_OF_DAYS_IN_WEEK - ONE);
+	std = sqrt(std);
+
+	// Look up the t-score from a t-table based on the level of confidence and the sample size
+	tScore = 2.447; // t (0.95, 6)
+
+	// Calculate the margin of error
+	E = tScore * std / sqrt(NUM_OF_DAYS_IN_WEEK);
+
+	// Calculate the lower and upper bounds of the confidence interval
+	lower = mean - E;
+	upper = mean + E;
+}
+void ExpectationsPerMovie(WeekSummeryPtr weekSummeryPtr) {
+	
+}

@@ -50,4 +50,14 @@ typedef struct WeekSchedule {
 	DaySchedulePtr weekSchedule[NUM_OF_DAYS_IN_WEEK];
 } *WeekSchedulePtr;
 
+enum DAY {
+	SUNDAY, MONDAY, TUESDAY, THURSDAY, FRIDAY, SATURDAY;
+};
 
+typedef struct DaySummery {
+	int* summeryMatrix[SCREENING_HOURS_PER_DAY + ONE];
+} *DaySummaryPtr;
+
+typedef struct WeekSummery {
+	DaySummery weekSummery[NUM_OF_DAYS_IN_WEEK];
+} *WeekSummeryPtr;
