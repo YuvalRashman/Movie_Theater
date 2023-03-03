@@ -4,11 +4,12 @@
 #include "Structs.h"
 
 
-void FindMoviesByDay(us day, Movie movie)
+void FindMoviesByDay(us day)
 {
-	for (int offset = 0; offset < NUM_; offset++)
+	int dayOffset = SUNDAY;
+	while (dayOffset<NUM_OF_DAYS_IN_WEEK)
 	{
-
+		printf("%d", );
 	}
 
 }
