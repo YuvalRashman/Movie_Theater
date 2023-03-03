@@ -44,3 +44,16 @@ Bool IsEmpty(LLLManager managerPtr)
 {
 	return managerPtr == NULL;
 }
+
+void CombineLists(LLLManagerPtr managerPtr, LLLManagerPtr secondManagerPtr)
+{
+	LLLNodePtr lllIter = *managerPtr;
+
+	while (lllIter->next)
+	{
+		lllIter = lllIter->next;
+	}
+
+	lllIter->next = *secondManagerPtr;
+	*secondManagerPtr = *managerPtr;
+}

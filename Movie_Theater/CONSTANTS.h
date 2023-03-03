@@ -5,7 +5,9 @@
 
 #define NUM_OF_DAYS_IN_WEEK 7
 #define NUM_OF_CHARS 26
+#define INIT_VALUE 0
 
+#define ZERO 0
 #define ONE 1
 #define TWO 2
 
@@ -18,3 +20,5 @@
 
 #define NUM_OF_THEATERS 10
 #define SCREENING_HOURS_PER_DAY 8
+
+#define CONF_LEVEL 0.95
