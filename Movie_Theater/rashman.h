@@ -20,7 +20,11 @@ Node* ClosestSmallerKeyRec(Node* node, int key, Node *best) {
     return ClosestSmallerKey(node->left, key, best); // need to check the left sub tree
 }
 
-Node* ClosestHigherKeyRec(Node* node, int key, Node *best) {
+Node* ClosestSmallerKey(Node* node, int key) {
+    return ClosestSmallerKeyRec(node, key, NULL);
+}
+
+Node* ClosestHigherKeyRec(Node* node, int key, Node* best) {
     if (!node) { // if NULL
         return best; // return the best so far
     }
@@ -36,19 +40,14 @@ Node* ClosestHigherKeyRec(Node* node, int key, Node *best) {
     return ClosestSmallerKey(node->right, key, best); // need to check the left sub tree
 }
 
-Node* ClosestSmallerKey(Node* node, int key) {
-    return ClosestSmallerKeyRec(node, key, NULL);
-}
-
 Node* ClosestHigherKey(Node* node, int key) {
     return ClosestHigherKeyRec(node, key, NULL);
 }
 
-
 void AddScreeningsToListInOrder(LLLManager* manager, Node* root){
     if (!root) {
         AddScreeningsToListInOrder(manager ,root->left);
-        PushLLL(manager, root);
+        PushLLL(manager, root->info);
         AddScreeningsToListInOrder(manager ,root->right);
     }
 }
@@ -56,14 +55,17 @@ void AddScreeningsToListInOrder(LLLManager* manager, Node* root){
 LLLManager* getAllScreeningsAfter(int movieId ,int day, int hour) {
     Node* root = ClosestHigherKey(movies[movieId]->days[day], hour);
     LLLManager* manager = (LLLManager*) malloc(sizeof(LLLManager));
+    while ((ScreeningPtr)(root->info)->hour == hour)
+    {
+        PushLLL(manager, root->info);
+        root = root->right;
+    }
     AddScreeningsToListInOrder(manager, root);
     return manager;
 }
 
-
-ScreeningPtr SearchScreeningByMovieId(int movieId, int day, int hour) {
+ScreeningPtr SearchCloseScreeningByMovieId(int movieId, int day, int hour) {
 	MoviePtr moviePtr = movies[movieId];
 	Node* screenings = moviePtr->days[day];
 	return ClosestSmallerKey(screenings, hour)->info;
 }
-
