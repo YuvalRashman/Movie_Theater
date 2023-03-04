@@ -41,16 +41,16 @@ typedef struct Screening {
 	us hour;
 	Mask* seats;
 	us seatsLeft;
-} *ScreeningPtr;
+} *ScreeningPtr, Screening;
 
 // Week and Day - schedule
 typedef struct DaySchedule {
 	ScreeningPtr screeningsSchedule[NUM_OF_THEATERS][SCREENING_HOURS_PER_DAY];
-} *DaySchedulePtr;
+} *DaySchedulePtr, DaySchedule;
 
 typedef struct WeekSchedule {
 	DaySchedulePtr weekSchedule[NUM_OF_DAYS_IN_WEEK];
-} *WeekSchedulePtr;
+} *WeekSchedulePtr, WeekSchedule;
 
 	typedef	enum DaysOfWeek {
 	SUNDAY = 1, MONDAY = 2, TUESDAY = 3, WEDNESDAY = 4, THURSDAY = 5, FRIDAY = 6, SATURDAY = 7
@@ -58,8 +58,8 @@ typedef struct WeekSchedule {
 
 typedef struct DaySummery {
 	int* summeryMatrix[SCREENING_HOURS_PER_DAY + ONE];
-} *DaySummaryPtr;
+} *DaySummaryPtr, DaySummery;
 
 typedef struct WeekSummery {
 	DaySummery weekSummery[NUM_OF_DAYS_IN_WEEK];
-} *WeekSummeryPtr;
+} *WeekSummeryPtr, WeekSummery;

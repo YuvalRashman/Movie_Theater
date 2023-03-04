@@ -5,13 +5,14 @@ typedef short Bool;
 
 typedef struct LLL {
 	void* info;
-	LLL* next;
-} *LLLManager, * LLLNodePtr;
+	struct LLL* next;
+} LLL, *LLLNodePtr, *LLLManager, **LLLManagerPtr;
 
 void InitLLL(LLLManager* managerPtr)
 {
 	*managerPtr = NULL;
 }
+
 void PushLLL(LLLManager* managerPtr, void* info)
 {
 	LLLNodePtr nodePtr = (LLLNodePtr)malloc(sizeof(LLL));
@@ -19,6 +20,7 @@ void PushLLL(LLLManager* managerPtr, void* info)
 	nodePtr->next = *managerPtr;
 	*managerPtr = nodePtr;
 }
+
 void AddAfterLLL(LLLNodePtr nodePtr, void* info)
 {
 	LLLNodePtr newNodePtr = (LLLNodePtr)malloc(sizeof(LLL));
@@ -26,6 +28,7 @@ void AddAfterLLL(LLLNodePtr nodePtr, void* info)
 	newNodePtr->next = nodePtr->next;
 	nodePtr->next = newNodePtr;
 }
+
 void PopLLL(LLLManager* managerPtr)
 {
 	LLLNodePtr temp = *managerPtr;
@@ -33,6 +36,7 @@ void PopLLL(LLLManager* managerPtr)
 	free(temp->info);
 	free(temp);
 }
+
 void DeleteAfterLLL(LLLNodePtr nodePtr)
 {
 	LLLNodePtr temp = nodePtr->next;
