@@ -123,7 +123,7 @@ Node* Insert(Node* root, void* info) {
         return LL(root);
     }
     // RL
-    else (currBF < -1 && newKey < GetKeyOfNode(root->right)) {
+    else if (currBF < -1 && newKey < GetKeyOfNode(root->right)) {
         root->right = LL(root->right);
         return RR(root);
     }
@@ -249,7 +249,7 @@ Bool IsLeaf(Node* root)
 void inorder(Node* root) {
     if (!root) {
         inorder(root->left);
-        printf("%d ", root->key);
+        printf("%d ", ((ScreeningPtr)(root->info))->hour);
         inorder(root->right);
     }
 }
