@@ -139,3 +139,26 @@ LLLManager SearchDay(WeekSchedulePtr weekSchedule, us day, int hour)
 {
 	SearchClosestDayHour(weekSchedule, day, INIT_VALUE);
 }
+
+// Print screening
+
+void PrintScreening(ScreeningPtr screeningPtr)
+{
+    printf("%s: starting hour = %d in theater %d", screeningPtr->movie, screeningPtr->hour, screeningPtr->theaterId);
+}
+
+void PrintScreeningsList(LLLManager screeningsList)
+{
+    LLLNodePtr iterPtr = screeningsList;
+    ScreeningPtr temp;
+
+    while (iterPtr)
+    {
+        temp = (ScreeningPtr)iterPtr->info;
+        
+        if (temp->seatsLeft)
+            PrintScreening(temp);
+
+        iterPtr = iterPtr->next;
+    }
+}

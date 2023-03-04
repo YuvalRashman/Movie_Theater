@@ -1,20 +1,66 @@
 #include "AVLHandler.h"
-#include "CONSTANTS.h"
-#include "LLLHandler.h"
-#include "Structs.h"
 
+MovieTheaterPtr theaters[NUM_OF_THEATERS];
+WeekSchedulePtr weekSchedule;
+MovieHandlerPtr movieHandler;
 
-void FindMoviesByDay(us day)
+us* NewArray(us len)
 {
-	int dayOffset = SUNDAY;
-	while (dayOffset<NUM_OF_DAYS_IN_WEEK)
+	us* vector = (us*)malloc(sizeof(us) * len);
+	us counter;
+
+	for (counter = INIT_VALUE; counter < len; counter++)
 	{
-		printf("%d", );
+		scanf("%hd", vector + counter);
 	}
 
+	return vector;
+}
+MovieTheaterPtr NewTheater()
+{
+	MovieTheaterPtr newTheater = (MovieTheaterPtr)malloc(sizeof(struct MovieTheater));
+
+	printf("New theater:\n");
+
+	// rowNum
+	printf("Enter row numbers: ");
+	scanf("%hd", &newTheater->rowNum);
+
+	// colNum
+	printf("Enter column numbers: ");
+	scanf("%hd", &newTheater->ColNum);
+
+	// theaterId
+	printf("Enter theater id: ");
+	scanf("%hd", &newTheater->theaterId);
+
+	// totalSeats
+	printf("Enter total seats: ");
+	scanf("%hd", &newTheater->totalSeats);
+
+	// rowsSeats
+	printf("Enter seats on each row: ");
+	newTheater->rowsSeats = NewArray(newTheater->rowNum);
+
+	return newTheater;
+}
+void InitTheaters()
+{
+	us counter;
+
+	for (counter = INIT_VALUE; counter <= NUM_OF_THEATERS; counter++)
+	{
+		theaters[counter] = NewTheater();
+	}
 }
 
+void Init() {
+	InitTheaters(); // Completed
+	InitNewWeekSchedule(); // To be completed
+	InitMovieHandler(); // To be completed
+}
 
+int main()
+{
 
-
-
+}

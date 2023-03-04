@@ -2,16 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <Math.h>
+#include "Structs.h"
 
 typedef short Bool;
 typedef unsigned short us;
 
-typedef struct node {
-    void* info;
-    us height;
-    struct node* left;
-    struct node* right;
-} Node;
+// O(1)
+Bool IsLeaf(Node* root)
+{
+    return !root->left & !root->right;
+}
 
 // Create a new node with the given key
 // O(1)
@@ -156,7 +156,7 @@ Node* Search(Node* root, us key) {
 void* DupInfo(void* info)
 {
     ScreeningPtr curr = (ScreeningPtr)info;
-    ScreeningPtr duped = (ScreeningPtr)malloc(sizeof(Screening));
+    ScreeningPtr duped = (ScreeningPtr) malloc(sizeof(Screening));
     
     duped->hour = curr->hour;
     duped->movie = curr->movie;
@@ -239,17 +239,11 @@ Node* Delete(Node* root, us key) {
     return root;
 }
 
-// O(1)
-Bool IsLeaf(Node* root)
-{
-    return !root->left & !root->right;
-}
-
 // O(n)
 void inorder(Node* root) {
     if (!root) {
         inorder(root->left);
-        printf("%d ", ((ScreeningPtr)(root->info))->hour);
+        printf("%d ", ((ScreeningPtr)root->info)->hour);
         inorder(root->right);
     }
 }

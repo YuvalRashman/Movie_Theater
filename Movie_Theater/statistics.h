@@ -173,7 +173,7 @@ void FindMostWantedMovie(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
 }
 
 // O(1)
-void ExpectationsPerDay(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
+void ExpectationsPerDay(WeekSummeryPtr weekSummeryPtr, int moviesNum, double* lowerBound, double* upperBound) {
 	int currOffset;
 	int temp;
 	double mean = INIT_VALUE, std = INIT_VALUE, tScore, E, lower, upper;
@@ -198,9 +198,6 @@ void ExpectationsPerDay(WeekSummeryPtr weekSummeryPtr, int moviesNum) {
 	E = tScore * std / sqrt(NUM_OF_DAYS_IN_WEEK);
 
 	// Calculate the lower and upper bounds of the confidence interval
-	lower = mean - E;
-	upper = mean + E;
-}
-void ExpectationsPerMovie(WeekSummeryPtr weekSummeryPtr) {
-	
+	*lowerBound = mean - E;
+	*upperBound = mean + E;
 }
