@@ -25,7 +25,7 @@ typedef struct Movie {
 	String name;
 	float length;
 	Node* days[NUM_OF_DAYS_IN_WEEK];
-} Movie, * MoviePtr;
+} Movie, *MoviePtr;
 
 // MoviesHanler
 typedef struct MovieHandler {

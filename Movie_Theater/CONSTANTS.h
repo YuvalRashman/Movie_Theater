@@ -23,4 +23,4 @@
 
 #define CONF_LEVEL 0.95
 
-#define MAX_STRING_LEN 20
+#define MAX_STRING_LEN 50

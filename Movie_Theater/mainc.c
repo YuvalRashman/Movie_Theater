@@ -1,6 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include "AVLHandler.h"
-#include "string.h"
+#include "searches.h"
 
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 WeekSchedulePtr weekSchedule;
@@ -10,7 +9,7 @@ us moviesNum;
 // Hash for movies
 us hash(MoviePtr movie)
 {
-	return *movie->name - 'a';
+	return *(movie->name) - 'a';
 }
 
 MoviePtr FindMovie(String movieName, us movieId)
@@ -105,6 +104,7 @@ void InitNewWeekSchedule()
 MoviePtr InputNewMovie(us movieId)
 {
 	MoviePtr newMovie = (MoviePtr)calloc(ONE, sizeof(Movie));
+	char tempName[MAX_STRING_LEN];
 
 	printf("New movie:\n");
 
@@ -113,7 +113,8 @@ MoviePtr InputNewMovie(us movieId)
 
 	// name
 	printf("Enter movie name: ");
-	scanf("%s", newMovie->name);
+	scanf("%s", tempName);
+	newMovie->name = _strdup(tempName);
 
 	// length
 	printf("Enter movie length (in hours): ");
@@ -150,7 +151,7 @@ void InputMovies()
 ScreeningPtr InputNewScreening(us* screeningDay)
 {
 	us movieId;
-	String movieName;
+	char movieName[MAX_STRING_LEN];
 	ScreeningPtr newScreening = (ScreeningPtr)malloc(sizeof(Screening));
 
 	// movieId
@@ -159,7 +160,7 @@ ScreeningPtr InputNewScreening(us* screeningDay)
 
 	// movieName
 	printf("Please enter movie name: ");
-	scanf("%s", &movieName);
+	scanf("%s", movieName);
 
 	// movie
 	newScreening->movie = FindMovie(movieName, movieId);
@@ -304,76 +305,26 @@ void FreeAll()
 	free(movieHandler);
 }
 
-void newScreening(DaySchedulePtr day, MoviePtr movie, us theaterId, int hour) {
-	ScreeningPtr screening = (ScreeningPtr)calloc(1 ,sizeof(Screening));
-	screening->movie = movie;
-	screening->seatsLeft = theaters[theaterId]->totalSeats;
-	screening->theaterId = theaterId;
-	screening->seats = (Mask*) calloc((theaters[theaterId]->totalSeats / sizeof(char)), sizeof(Mask)); // add malloc to mask
-	screening->hour = hour; // ??? redandecy
-	int hourOffset;
-	int endHour = ceil(hour + movie->length / 60);
-	for (hourOffset = hour; hourOffset < endHour; hourOffset++)
-	{
-		day->screeningsSchedule[theaterId][hourOffset] = screening;
-	}
+// Searches on movies
+LLLManager SearchMovieFromHour(String movieName, us movieId, us day, us hour) {
+	MoviePtr currMovie = FindMovie(movieName, movieId);
+	Node* root = ClosestHigherKey(currMovie->days[day], hour);
+	LLLManager manager = NULL;
+
+	// Make list from all nodes in the current sub-tree
+	TreeToListInOrder(&manager, root);
+	return manager;
 }
 
-MovieTheaterPtr newTheater(us theaterId, us rowNum, us colNum, us* rowsSeats, us totalSeats) {
-	MovieTheaterPtr theater = (MovieTheaterPtr) calloc(1, sizeof(MovieTheater));
-	theater->colNum = colNum;
-	theater->rowNum = rowNum;
-	theater->theaterId = theaterId;
-	theater->totalSeats = totalSeats;
-	theater->rowsSeats = rowsSeats;
-	return theater;
-}
+LLLManager SearchMovieByHour(String movieName, us movieId, us day, us hour) {
+	MoviePtr moviePtr = FindMovie(movieName, movieId);
+	Node* screenings = moviePtr->days[day];
 
-void InitData() {
-	//create movies
-	newMovie(1, strdup("ant man and the wasp"), 120);
-	newMovie(2, strdup("hulk"), 60);
-	newMovie(3, strdup("star wars"), 40);
-	newMovie(4, strdup("kill bill"), 20);
-	newMovie(5, strdup("twenty one jump street"), 50);
-	newMovie(6, strdup("spongebob the movie (best)"), 120);
-	newMovie(7, strdup("avengers 1"), 80);
-	newMovie(8, strdup("harry poter solving all your problems"), 50);
-	newMovie(9, strdup("space jam"), 49);
-
-	//create theaters
-	int arr1[4] = { 6, 10, 15, 20 };
-	theaters[0] = newTheater(0, 4, 20, arr1, 51);
-	int arr2[3] = { 4 ,3 ,3 };
-	theaters[1] = newTheater(1, 3, 10, arr2, 16);
-	int arr3[5] = { 8,6,6,6, 12 };
-	theaters[2] = newTheater(2, 5, 12, arr3, 38);
-	int arr4[2] = { 5,5 };
-	theaters[3] = newTheater(3, 2, 5, arr4, 10);
-	int arr5[6] = { 10,10,10,10,10,10 };
-	theaters[4] = newTheater(4, 6, 10, arr5, 60);
-
-
-	DaySchedulePtr day1 = (DaySchedulePtr) calloc(1, sizeof(DaySchedule));
-	newScreening(day1, FindMovie("ant man and the wasp", 1), 0, 18);
-	DaySchedulePtr day2 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	newScreening(day2, FindMovie("ant man and the wasp", 1), 0, 19);
-	DaySchedulePtr day3 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	DaySchedulePtr day4 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	DaySchedulePtr day5 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	DaySchedulePtr day6 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	DaySchedulePtr day7 = (DaySchedulePtr)calloc(1, sizeof(DaySchedule));
-	weekSchedule->weekSchedule[0] = day1;
-	weekSchedule->weekSchedule[1] = day2;
-	weekSchedule->weekSchedule[2] = day3;
-	weekSchedule->weekSchedule[3] = day4;
-	weekSchedule->weekSchedule[4] = day5;
-	weekSchedule->weekSchedule[5] = day6;
-	weekSchedule->weekSchedule[6] = day7;
+	return (LLLNodePtr) ClosestHigherKey(screenings, hour)->info;
 }
 
 int main()
 {
-	InitData();
+	Init();
 	FreeAll();
 }

@@ -84,6 +84,11 @@ Node* Insert(Node* root, void* info, us newKey) {
     if (!root) {
         return NewNode(info, newKey);
     }
+    if (root->key == newKey)
+    {
+        PushLLL(&(LLLManager)root->info, info);
+        return root;
+    }
 
     short currBF;
     us currKey = root->key;

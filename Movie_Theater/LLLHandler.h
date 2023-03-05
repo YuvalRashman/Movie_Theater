@@ -59,5 +59,4 @@ void CombineLists(LLLManagerPtr managerPtr, LLLManagerPtr secondManagerPtr)
 	}
 
 	lllIter->next = *secondManagerPtr;
-	*secondManagerPtr = *managerPtr;
 }
