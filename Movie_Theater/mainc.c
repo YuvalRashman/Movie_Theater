@@ -542,15 +542,18 @@ void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 
 void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 {
+	printf("=========================================================\n");
 	String movie = screenPtr->movie->name;
-	printf("%s\n", movie);
+	printf("movie name: %s\n", movie);
 
 	us startTime = screenPtr->hour;
-	printf("%hu\n", startTime);
+	printf("movie start in: %hu\n pm", startTime);
 	us rowNumber;
 	us sum = 0;
 	for (rowNumber = ZERO; sum < chosenSeat; sum += (theaters[screenPtr->theaterId])->rowsSeats[rowNumber], rowNumber++);
-	printf("%hu %hu", rowNumber, sum - chosenSeat);
+	printf("your seat in: \n");
+	printf("row: %hu seat: %hu\n", rowNumber, sum - chosenSeat);
+	printf("=========================================================\n");
 }
 
 int main()
