@@ -514,6 +514,7 @@ void PrintMovieTree(Node* movieTree)
 //Movie Seats
 void ShowMovieSeats(ScreeningPtr screenPtr)
 {
+	printf("\n");
 	int seatsInRow;
 	int bit;
 	us totalSeats = ZERO;
@@ -540,20 +541,45 @@ void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 	screenPtr->seatsLeft--;
 }
 
+void ShowAvilableSeats(char* movieName, us movieId, us seat, us hour, us day) {
+	MoviePtr movie = FindMovie(movieName, movieId);
+	LLLNodePtr listNode = (((LLLManager)Search(movie->days[day], hour)->info));
+	while (((ScreeningPtr)listNode->info)->seatsLeft == 0)
+	{
+		listNode = listNode->next;
+	}
+	ShowMovieSeats(((ScreeningPtr)listNode->info));
+}
+
 void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 {
+	printf("\n");
 	printf("=========================================================\n");
 	String movie = screenPtr->movie->name;
 	printf("movie name: %s\n", movie);
 
 	us startTime = screenPtr->hour;
-	printf("movie start in: %hu\n pm", startTime);
-	us rowNumber;
-	us sum = 0;
-	for (rowNumber = ZERO; sum < chosenSeat; sum += (theaters[screenPtr->theaterId])->rowsSeats[rowNumber], rowNumber++);
+	printf("movie start in: %hu pm \n", startTime);
+	us rowNumber = 0;
+	us sum = (theaters[screenPtr->theaterId])->rowsSeats[rowNumber];
+	if (sum < chosenSeat) {
+		for (rowNumber = ONE; sum < chosenSeat; sum += (theaters[screenPtr->theaterId])->rowsSeats[rowNumber], rowNumber++);
+	}
 	printf("your seat in: \n");
-	printf("row: %hu seat: %hu\n", rowNumber, sum - chosenSeat);
+	printf("row: %hu seat: %hu\n", rowNumber, chosenSeat);
 	printf("=========================================================\n");
+}
+
+void BuyTicket(char* movieName, us movieId, us seat, us hour, us day) {
+	MoviePtr movie = FindMovie(movieName, movieId);
+	LLLNodePtr listNode = (((LLLManager)Search(movie->days[day], hour)->info));
+	while (((ScreeningPtr)listNode->info)->seatsLeft == 0)
+	{
+		listNode = listNode->next;
+	}
+	ScreeningPtr screening = ((ScreeningPtr)listNode->info);
+	PickMovieSeats(screening, seat);
+	ShowMovieTicket(screening, seat);
 }
 
 void printMovieCodeTree(Node* movie) {
