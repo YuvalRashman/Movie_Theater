@@ -22,3 +22,5 @@
 #define SCREENING_HOURS_PER_DAY 8
 
 #define CONF_LEVEL 0.95
+
+#define MAX_STRING_LEN 20

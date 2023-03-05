@@ -6,7 +6,7 @@
 #include "LLLHandler.h"
 
 // String
-typedef char* String;
+typedef char String[MAX_STRING_LEN];
 
 typedef char Mask;
 typedef unsigned short us;
@@ -25,17 +25,17 @@ typedef struct Movie {
 	String name;
 	float length;
 	Node* days[NUM_OF_DAYS_IN_WEEK];
-} Movie, *MoviePtr;
+} Movie, * MoviePtr;
 
 // MoviesHanler
 typedef struct MovieHandler {
 	Node* movieLists[NUM_OF_CHARS];
-} MovieHandler, *MovieHandlerPtr;
+} MovieHandler, * MovieHandlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {
 	us rowNum;
-	us ColNum;
+	us colNum;
 	us theaterId;
 	us* rowsSeats; //diynamic array
 	us totalSeats;
@@ -45,7 +45,7 @@ typedef struct MovieTheater {
 typedef struct Screening {
 	MoviePtr movie;
 	us theaterId;
-	//us hour;
+	us hour;
 	Mask* seats;
 	us seatsLeft;
 } *ScreeningPtr, Screening;

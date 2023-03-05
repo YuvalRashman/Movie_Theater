@@ -6,15 +6,28 @@ WeekSchedulePtr weekSchedule;
 MovieHandlerPtr movieHandler;
 us moviesNum;
 
+// Hash for movies
+us hash(MoviePtr movie)
+{
+	return *movie->name - 'a';
+}
+
 MoviePtr FindMovie(String movieName, us movieId)
 {
 	return (MoviePtr)Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
 }
-
-// Hash for movies
-int hash(MoviePtr movie)
+us SumVec(us* vecStartPtr, us* vecEndPtr, us delta)
 {
-	return *movie->name - 'a';
+	us* iterPtr = vecStartPtr;
+	us sum = INIT_VALUE;
+
+	while (iterPtr <= vecEndPtr)
+	{
+		sum += *iterPtr;
+		iterPtr += delta;
+	}
+
+	return sum;
 }
 
 // Theaters
@@ -30,7 +43,7 @@ us* NewArray(us len)
 
 	return vector;
 }
-MovieTheaterPtr NewTheater()
+MovieTheaterPtr NewTheater(us id)
 {
 	MovieTheaterPtr newTheater = (MovieTheaterPtr)malloc(sizeof(struct MovieTheater));
 
@@ -42,15 +55,13 @@ MovieTheaterPtr NewTheater()
 
 	// colNum
 	printf("Enter column numbers: ");
-	scanf("%hd", &newTheater->ColNum);
+	scanf("%hd", &newTheater->colNum);
 
 	// theaterId
-	printf("Enter theater id: ");
-	scanf("%hd", &newTheater->theaterId);
+	newTheater->theaterId = id;
 
 	// totalSeats
-	printf("Enter total seats: ");
-	scanf("%hd", &newTheater->totalSeats);
+	newTheater->totalSeats = SumVec(newTheater->rowsSeats, newTheater->rowsSeats + newTheater->rowNum - ONE, ONE);
 
 	// rowsSeats
 	printf("Enter seats on each row: ");
@@ -62,9 +73,9 @@ void InitTheaters()
 {
 	us counter;
 
-	for (counter = INIT_VALUE; counter <= NUM_OF_THEATERS; counter++)
+	for (counter = INIT_VALUE; counter < NUM_OF_THEATERS; counter++)
 	{
-		theaters[counter] = NewTheater();
+		theaters[counter] = NewTheater(counter);
 	}
 }
 
@@ -126,13 +137,82 @@ void InputMovies()
 }
 
 // New Screenings
-void InputNewScreening()
+ScreeningPtr InputNewScreening(us* screeningDay)
 {
-	// use of FindMovie()!
+	us movieId;
+	String movieName;
+	ScreeningPtr newScreening = (ScreeningPtr)malloc(sizeof(Screening));
+
+	// movieId
+	printf("Please enter movie id: ");
+	scanf("%hd", &movieId);
+
+	// movieName
+	printf("Please enter movie name: ");
+	scanf("%s", &movieName);
+
+	// movie
+	newScreening->movie = FindMovie(movieName, movieId);
+
+	// theaterId
+	printf("Please input theater id: ");
+	scanf("%hd", &newScreening->theaterId);
+
+	// hour
+	printf("Please input an hour: ");
+	scanf("%hd", &newScreening->hour);
+
+	// day
+	printf("Please enter the day of the screening (number): ");
+	scanf("%d", screeningDay);
+
+	// seatsLeft
+	newScreening->seatsLeft = theaters[newScreening->theaterId]->totalSeats;
+
+	// seats
+	us numOfMasks = (theaters[newScreening->theaterId]->totalSeats - ONE) / sizeof(Mask) + ONE;
+	newScreening->seats = (Mask*)calloc(numOfMasks, sizeof(Mask));
+
+	return newScreening;
+}
+void InsertScreeningToMatrix(ScreeningPtr* startingPlace, ScreeningPtr newScreening)
+{
+	ScreeningPtr* endPlace = startingPlace + (int)fmin((int)newScreening->movie->length, SCREENING_HOURS_PER_DAY - newScreening->hour - ONE);
+	ScreeningPtr* iterPtr = startingPlace;
+
+	while (iterPtr <= endPlace)
+	{
+		*iterPtr = newScreening;
+		iterPtr++;
+	}
 }
 void InputScreenings()
 {
+	char inpMessage;
+	ScreeningPtr newScreening;
+	us day;
+	MoviePtr currMovie;
+	ScreeningPtr* startingPlace;
 
+	printf("Would you like to input a new screening? (y/n) ");
+	scanf("%c", &inpMessage);
+
+	while (inpMessage == 'y')
+	{
+		newScreening = InputNewScreening(&day);
+
+		// Put screening in matrix
+		startingPlace = weekSchedule->weekSchedule[day]->screeningsSchedule[newScreening->theaterId] + newScreening->hour;
+		InsertScreeningToMatrix(startingPlace, newScreening);
+
+		// Put screening in movie's tree
+		currMovie = FindMovie(newScreening->movie->name, newScreening->movie->movieId);
+		currMovie->days[day] = Insert(currMovie->days[day], (void*)newScreening, newScreening->hour);
+
+
+		printf("Would you like to input a new screening? (y/n) ");
+		scanf("%c", inpMessage);
+	}
 }
 
 void Init() {
@@ -140,10 +220,82 @@ void Init() {
 	InitNewWeekSchedule(); // Completed
 	InitMovieHandler(); // Completed
 	InputMovies(); // Completed
-	InputScreenings(); // To be completed - input screenings and arrange it in the matrixes and trees
+	InputScreenings(); // completed
+}
+
+// Free structure
+void FreeMatrix(DaySchedulePtr matrix)
+{
+	ScreeningPtr* iterPtr = *matrix->screeningsSchedule;
+	ScreeningPtr* endPtr = iterPtr + NUM_OF_THEATERS * SCREENING_HOURS_PER_DAY - ONE;
+
+	while (iterPtr <= endPtr)
+	{
+		free((*iterPtr)->seats);
+		free(*iterPtr);
+		iterPtr++;
+	}
+}
+void FreeTree(Node* root)
+{
+	if (!root)
+		return;
+
+	FreeTree(root->left);
+	FreeTree(root->right);
+	free(root);
+}
+void FreeMovieTree(Node* movieTree)
+{
+	us counter;
+
+	if (!movieTree)
+		return;
+
+	// PostOrder
+	FreeMovieTree(movieTree->left);
+	FreeMovieTree(movieTree->right);
+
+	// Free day-trees
+	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+	{
+		FreeTree(((MoviePtr)movieTree->info)->days[counter]);
+	}
+
+	// Free into and node
+	free(movieTree->info);
+	free(movieTree);
+}
+void FreeAll()
+{
+	us counter;
+
+	// Free theaters
+	for (counter = INIT_VALUE; counter < NUM_OF_THEATERS; counter++)
+	{
+		free(theaters[counter]->rowsSeats);
+		free(theaters[counter]);
+	}
+
+	// Free weekSchedule
+	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+	{
+
+		FreeMatrix(weekSchedule->weekSchedule[counter]);
+		free(weekSchedule->weekSchedule[counter]);
+	}
+	free(weekSchedule);
+
+	// Free movieHandler
+	for (counter = INIT_VALUE; counter < NUM_OF_CHARS; counter++)
+	{
+		FreeMovieTree(movieHandler->movieLists[counter]);
+	}
+	free(movieHandler);
 }
 
 int main()
 {
 	Init();
+	FreeAll();
 }
