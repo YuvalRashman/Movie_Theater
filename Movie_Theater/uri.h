@@ -10,14 +10,14 @@ void ShowMovieSeats(ScreeningPtr screenPtr)
 {
 	us seatsInRow;
 	char bit;
-	us totalSeats = 0;
+	us totalSeats = ZERO;
     int row;
-	for (us rowOffset = 0; rowOffset < theaters[screenPtr->theaterId]->rowNum; rowOffset++)
+	for (us rowOffset = ZERO; rowOffset < theaters[screenPtr->theaterId]->rowNum; rowOffset++)
 	{
 		seatsInRow = theaters[screenPtr->theaterId]->rowSeats[rowOffset];
-		for (us seat = 0; seat < seatsInRow; seat++)
+		for (us seat = ZERO; seat < seatsInRow; seat++)
 		{
-			bit = (screenPtr->seats[(totalSeats / 8)] & (1 << totalSeats % 8)) >> (totalSeats % 8);
+			bit = (screenPtr->seats[(totalSeats / EIGHT)] & (ONE << totalSeats % EIGHT)) >> (totalSeats % EIGHT);
 			printf("%c", bit);
 			
 				totalSeats++;
@@ -29,7 +29,7 @@ void ShowMovieSeats(ScreeningPtr screenPtr)
 void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 {
 	ShowMovieSeats(screenPtr);
-	screenPtr->seats[(seat / 8)] |= CHAIR_TAKEN << (seat % 8);
+	screenPtr->seats[(seat / EIGHT)] |= CHAIR_TAKEN << (seat % EIGHT);
 	screenPtr->seatsLeft--;
 }
 
@@ -42,6 +42,6 @@ void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 	printf("%hu\n", startTime);
 	us rowNumber;
 	us sum;
-	for (rowNumber = 0; sum < chosenSeat; sum += theaters[screenPtr->theaterId]->rowSeats[rowNumber], rowNumber++);
+	for (rowNumber = ZERO; sum < chosenSeat; sum += theaters[screenPtr->theaterId]->rowSeats[rowNumber], rowNumber++);
 	printf("%hu %hu", rowNumber, sum - chosenSeat);
 }
