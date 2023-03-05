@@ -42,6 +42,6 @@ void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 	printf("%hu\n", startTime);
 	us rowNumber;
 	us sum;
-	for (rowNumber = 0; sum < chosenSeat; sum += theaters[screenPtr->theaterId]->rowSeats[offset], rowNumber++);
+	for (rowNumber = 0; sum < chosenSeat; sum += theaters[screenPtr->theaterId]->rowSeats[rowNumber], rowNumber++);
 	printf("%hu %hu", rowNumber, sum - chosenSeat);
 }
