@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "searches.h"
+#include <string.h>
 
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 WeekSchedulePtr weekSchedule;
@@ -7,15 +8,17 @@ MovieHandlerPtr movieHandler;
 us moviesNum;
 
 // Hash for movies
-us hash(MoviePtr movie)
+us hash(String movie)
 {
-	return *(movie->name) - 'a';
+	return *(movie) - 'a';
 }
 
 MoviePtr FindMovie(String movieName, us movieId)
 {
+
 	return (MoviePtr)Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
 }
+
 us SumVec(us* vecStartPtr, us* vecEndPtr, us delta)
 {
 	us* iterPtr = vecStartPtr;
@@ -123,12 +126,13 @@ MoviePtr InputNewMovie(us movieId)
 	return newMovie;
 }
 
-void newMovie(int movieId, char* movieName, int length) {
+void newDataMovie(int movieId, char* movieName, int length) {
 	MoviePtr movie = (MoviePtr)calloc(1, sizeof(Movie));
 	movie->length = length;
 	movie->movieId = movieId;
 	movie->name = movieName;
-	movieHandler->movieLists[hash(movie)] = Insert(movieHandler->movieLists[hash(movie)], (void*)movie, movie->movieId);
+	int offset = hash(movie->name);
+	movieHandler->movieLists[offset] = Insert(movieHandler->movieLists[offset], (void*)movie, movieId);
 }
 
 void InputMovies()
@@ -320,11 +324,122 @@ LLLManager SearchMovieByHour(String movieName, us movieId, us day, us hour) {
 	MoviePtr moviePtr = FindMovie(movieName, movieId);
 	Node* screenings = moviePtr->days[day];
 
-	return (LLLNodePtr) ClosestHigherKey(screenings, hour)->info;
+	return (LLLNodePtr)ClosestHigherKey(screenings, hour)->info;
+}
+
+void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
+	ScreeningPtr screening = (ScreeningPtr)calloc(1 ,sizeof(Screening));
+	screening->movie = movie;
+	screening->seatsLeft = theaters[theaterId]->totalSeats;
+	screening->theaterId = theaterId;
+	screening->seats = (Mask*) calloc((theaters[theaterId]->totalSeats / sizeof(char)), sizeof(Mask)); // add malloc to mask
+	screening->hour = hour; // ??? redandecy
+	int hourOffset;
+	int endHour = ceil(hour + movie->length / 60);
+	for (hourOffset = hour; hourOffset < endHour; hourOffset++)
+	{
+		weekSchedule->weekSchedule[day]->screeningsSchedule[theaterId][hourOffset] = screening;
+	}
+	Insert(movie->days[day], (void*)screening, hour);
+}
+
+MovieTheaterPtr newDataTheater(us theaterId, us rowNum, us colNum, us* rowsSeats, us totalSeats) {
+	MovieTheaterPtr theater = (MovieTheaterPtr) calloc(1, sizeof(MovieTheater));
+	theater->colNum = colNum;
+	theater->rowNum = rowNum;
+	theater->theaterId = theaterId;
+	theater->totalSeats = totalSeats;
+	theater->rowsSeats = rowsSeats;
+	return theater;
+}
+
+void InitData() {
+	
+	InitMovieHandler();
+	InitNewWeekSchedule();
+
+	//create movies
+	newDataMovie(1, _strdup("ant man and the wasp"), 120);
+	newDataMovie(2, _strdup("hulk"), 60);
+	newDataMovie(3, _strdup("star wars"), 40);
+	newDataMovie(4, _strdup("kill bill"), 20);
+	newDataMovie(5, _strdup("twenty one jump street"), 50);
+	newDataMovie(6, _strdup("spongebob the movie (best)"), 120);
+	newDataMovie(7, _strdup("avengers 1"), 80);
+	newDataMovie(8, _strdup("harry poter solving all your problems"), 50);
+	newDataMovie(9, _strdup("space jam"), 49);
+
+	//create theaters
+	int arr1[4] = { 6, 10, 15, 20 };
+	theaters[0] = newDataTheater(0, 4, 20, arr1, 51);
+	int arr2[3] = { 4 ,3 ,3 };
+	theaters[1] = newDataTheater(1, 3, 10, arr2, 16);
+	int arr3[5] = { 8,6,6,6, 12 };
+	theaters[2] = newDataTheater(2, 5, 12, arr3, 38);
+	int arr4[2] = { 5,5 };
+	theaters[3] = newDataTheater(3, 2, 5, arr4, 10);
+	int arr5[6] = { 10,10,10,10,10,10 };
+	theaters[4] = newDataTheater(4, 6, 10, arr5, 60);
+
+	//create screening
+	newScreening(0, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(0, FindMovie("hulk", 2), 1, 1);
+
+	newScreening(0, FindMovie("star wars", 3), 2, 5);
+	newScreening(0, FindMovie("star wars", 3), 3, 0);
+	newScreening(0, FindMovie("star wars", 3), 4, 2);
+	newScreening(0, FindMovie("star wars", 3), 2, 0);
+	newScreening(0, FindMovie("star wars", 3), 2, 7);
+
+	newScreening(0, FindMovie("kill bill", 4), 3, 4);
+	newScreening(0, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(0, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(1, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(1, FindMovie("hulk", 2), 1, 1);
+	newScreening(1, FindMovie("star wars", 3), 2, 0);
+	newScreening(1, FindMovie("kill bill", 4), 3, 4);
+	newScreening(1, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(1, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(2, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(2, FindMovie("hulk", 2), 1, 1);
+	newScreening(2, FindMovie("star wars", 3), 2, 0);
+	newScreening(2, FindMovie("kill bill", 4), 3, 4);
+	newScreening(2, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(2, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(3, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(3, FindMovie("hulk", 2), 1, 1);
+	newScreening(3, FindMovie("star wars", 3), 2, 0);
+	newScreening(3, FindMovie("kill bill", 4), 3, 4);
+	newScreening(3, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(3, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(4, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(4, FindMovie("hulk", 2), 1, 1);
+	newScreening(4, FindMovie("star wars", 3), 2, 0);
+	newScreening(4, FindMovie("kill bill", 4), 3, 4);
+	newScreening(4, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(4, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(5, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(5, FindMovie("hulk", 2), 1, 1);
+	newScreening(5, FindMovie("star wars", 3), 2, 0);
+	newScreening(5, FindMovie("kill bill", 4), 3, 4);
+	newScreening(5, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(5, FindMovie("spongebob the movie (best)", 6), 0, 4);
+
+	newScreening(6, FindMovie("ant man and the wasp", 1), 0, 6);
+	newScreening(6, FindMovie("hulk", 2), 1, 1);
+	newScreening(6, FindMovie("star wars", 3), 2, 0);
+	newScreening(6, FindMovie("kill bill", 4), 3, 4);
+	newScreening(6, FindMovie("twenty one jump street", 5), 4, 5);
+	newScreening(6, FindMovie("spongebob the movie (best)", 6), 0, 4);
 }
 
 int main()
 {
-	Init();
+	InitData();
 	FreeAll();
 }
