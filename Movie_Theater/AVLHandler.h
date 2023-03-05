@@ -37,7 +37,7 @@ us GetHeight(Node* root) {
 
 // Get the balance factor of the node
 // O(1)
-us GetBF(Node* root) {
+short GetBF(Node* root) {
     if (!root) {
         return ZERO;
     }
@@ -85,7 +85,7 @@ Node* Insert(Node* root, void* info, us newKey) {
         return NewNode(info, newKey);
     }
 
-    us currBF;
+    short currBF;
     us currKey = root->key;
 
     // Go left
@@ -142,102 +142,6 @@ Node* Search(Node* root, us key) {
         else {
             return root;
         }
-    }
-}
-
-// O(1)
-void* DupInfo(void* info)
-{
-    ScreeningPtr curr = (ScreeningPtr)info;
-    ScreeningPtr duped = (ScreeningPtr) malloc(sizeof(Screening));
-    
-    //duped->hour = curr->hour;
-    duped->movie = curr->movie;
-    duped->seatsLeft = curr->seatsLeft;
-    duped->seats = curr->seats;
-    duped->theaterId = curr->theaterId;
-
-    return (void*) duped;
-}// Rashman continue from here
-
-// Delete a key from the tree
-// O(log(n))
-Node* Delete(Node* root, us key) {
-    // Root is empty
-    if (!root) {
-        return root;
-    }
-
-    Node* temp;
-    us currKey = root->key;//GetKeyOfNode(root);
-
-    // Go left
-    if (key < currKey) {
-        root->left = Delete(root->left, key);
-    }
-    // Go right
-    else if (key > currKey) {
-        root->right = Delete(root->right, key);
-    }
-    // Found the one to be deleted
-    else {
-        if (IsLeaf(root)) {
-            free(root->info);
-            free(root);
-            return NULL;
-        }
-        else if (!root->left) {
-            temp = root->right;
-            free(root->info);
-            free(root);
-            return temp;
-        }
-        else if (!root->right) {
-            temp = root->left;
-            free(root->info);
-            free(root);
-            return temp;
-        }
-        else {
-            temp = root->right;
-            while (temp->left) {
-                temp = temp->left;
-            }
-            free(root->info);
-            root->info = DupInfo(temp->info);
-            root->right = Delete(root->right, temp->key);
-        }
-    }
-
-    // Update height and balance factor
-    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
-    int balance = GetBF(root);
-
-    // Make rotations
-    if (balance > 1 && GetBF(root->left) >= 0) {
-        return LL(root);
-    }
-    if (balance > 1 && GetBF(root->left) < 0) {
-        root->left = RR(root->left);
-        return LL(root);
-    }
-    if (balance < -1 && GetBF(root->right) <= 0) {
-        return RR(root);
-    }
-    if (balance < -1 && GetBF(root->right) > 0) {
-        root->right = LL(root->right);
-        return RR(root);
-    }
-
-    return root;
-}
-
-// O(n)
-void inorder(Node* root) {
-    if (!root) {
-        inorder(root->left);
-        printf("%d ", root->key);
-        inorder(root->right);
     }
 }
 

@@ -3,23 +3,6 @@
 #include "Structs.h"
 #include "LLLHandler.h"
 
-// O(n)
-// T(n) = 2T(n / 2) + O(1)
-// O(n)
-// Print AVL Tree:
-void InOrder(Node* iNode)
-{
-    if (!iNode)
-    {
-        return;
-    }
-    else
-    {
-		InOrder(iNode->left);
-		printf("%s", ((ScreeningPtr) iNode->info)->hour);
-		InOrder(iNode->right);
-    }
-}
 
 ScreeningPtr SearchScreeningByMovieId(int movieId);
 
@@ -27,16 +10,16 @@ Node* ClosestSmallerKeyRec(Node* node, int key, Node* best) {
     if (!node) { // if NULL
         return best; // return the best so far
     }
-    if ((ScreeningPtr))(node->info)->hour == key) { // if equal we neeed to find smaller or best / father
+    if (node->key == key) { // if equal we neeed to find smaller or best / father
         /*if (node->left) {
             return ClosestSmallerKey(node->left, key, node->left);
         }*/
         return best;
     }
-    if ((ScreeningPtr)(node->info)->hour < key) { // if less need to change the best
-        return ClosestSmallerKey(node->right, key, node);
+    if (node->key < key) { // if less need to change the best
+        return ClosestSmallerKeyRec(node->right, key, node);
     }
-    return ClosestSmallerKey(node->left, key, best); // need to check the left sub tree
+    return ClosestSmallerKeyRec(node->left, key, best); // need to check the left sub tree
 }
 
 Node* ClosestSmallerKey(Node* node, int key) {
@@ -47,16 +30,16 @@ Node* ClosestHigherKeyRec(Node* node, int key, Node* best) {
     if (!node) { // if NULL
         return best; // return the best so far
     }
-    if ((ScreeningPtr)(node->info)->hour == key) { // if equal we neeed to find smaller or best / father
+    if (node->key == key) { // if equal we neeed to find smaller or best / father
         /*if (node->right) {
             return ClosestSmallerKey(node->right, key, node->right);
         }*/
         return best;
     }
-    if ((ScreeningPtr)(node->info)->hour > key) { // if less need to change the best
-        return ClosestSmallerKey(node->left, key, node);
+    if (node->key > key) { // if less need to change the best
+        return ClosestHigherKeyRec(node->left, key, node);
     }
-    return ClosestSmallerKey(node->right, key, best); // need to check the left sub tree
+    return ClosestHigherKeyRec(node->right, key, best); // need to check the left sub tree
 }
 
 Node* ClosestHigherKey(Node* node, int key) {
