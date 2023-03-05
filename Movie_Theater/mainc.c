@@ -8,17 +8,19 @@ MovieHandlerPtr movieHandler;
 us moviesNum;
 
 // Hash for movies
+// O(1)
 us hash(String movie)
 {
 	return *(movie) - 'a';
 }
 
+// O(n)
 MoviePtr FindMovie(String movieName, us movieId)
 {
-
 	return (MoviePtr)Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
 }
 
+// O(n)
 us SumVec(us* vecStartPtr, us* vecEndPtr, us delta)
 {
 	us* iterPtr = vecStartPtr;
@@ -222,7 +224,7 @@ void InputScreenings()
 
 		// Put screening in movie's tree
 		currMovie = FindMovie(newScreening->movie->name, newScreening->movie->movieId);
-		currMovie->days[day] = Insert(currMovie->days[day], (void*)newScreening, newScreening->hour);
+		currMovie->days[day] = InsertScreeningNode(currMovie->days[day], (void*)newScreening, newScreening->hour);
 
 
 		printf("Would you like to input a new screening? (y/n) ");
@@ -256,7 +258,7 @@ void FreeMatrix(DaySchedulePtr matrix)
 }
 void FreeList(LLLManager manager)
 {
-	if (!manager->next) {
+	if (!(manager->next)) {
 		free(manager);
 		return;
 	}
@@ -333,16 +335,12 @@ LLLManager SearchMovieFromHour(String movieName, us movieId, us day, us hour) {
 	TreeToListInOrder(&manager, root);
 	return manager;
 }
-
 LLLManager SearchMovieByHour(String movieName, us movieId, us day, us hour) {
 	MoviePtr moviePtr = FindMovie(movieName, movieId);
 	Node* screenings = moviePtr->days[day];
 
 	return (LLLNodePtr)ClosestHigherKey(screenings, hour)->info;
 }
-
-
-
 
 void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	ScreeningPtr screening = (ScreeningPtr)calloc(1 ,sizeof(Screening));
@@ -357,7 +355,7 @@ void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	{
 		weekSchedule->weekSchedule[day]->screeningsSchedule[theaterId][hourOffset] = screening;
 	}
-	Insert(movie->days[day], (void*)screening, hour);
+	movie->days[day] = InsertScreeningNode(movie->days[day], (void*)screening, hour);
 }
 MovieTheaterPtr newDataTheater(us theaterId, us rowNum, us colNum, us* rowsSeats, us totalSeats) {
 	MovieTheaterPtr theater = (MovieTheaterPtr) calloc(1, sizeof(MovieTheater));
@@ -453,8 +451,84 @@ void InitData() {
 	newScreening(6, FindMovie("spongebob the movie (best)", 6), 0, 4);
 }
 
+void PrintList(LLLManager manager)
+{
+	if (!manager->next) {
+		PrintScreening((ScreeningPtr)manager->info);
+		return;
+	}
+
+	PrintList(manager->next);
+	PrintScreening((ScreeningPtr)manager->info);
+}
+void PrintTree(Node* root)
+{
+	if (!root)
+		return;
+
+	PrintTree(root->left);
+	PrintTree(root->right);
+	PrintList((LLLManager)root->info);
+}
+void PrintMovieTree(Node* movieTree)
+{
+	us counter;
+
+	if (!movieTree)
+		return;
+
+	// PostOrder
+	PrintMovieTree(movieTree->left);
+	PrintMovieTree(movieTree->right);
+
+	// Free day-trees
+	printf("Movie %s:\n", ((MoviePtr)movieTree->info)->name);
+	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+	{
+		printf("Day number %d:\n", counter);
+		PrintTree(((MoviePtr)movieTree->info)->days[counter]);
+	}
+}
+
 int main()
 {
 	InitData();
+
+	LLLManager n = SearchDay(weekSchedule, 0);
+	PrintScreening(n);
+	FreeList(n);
+
 	FreeAll();
 }
+
+/*// Free theaters
+for (counter = INIT_VALUE; counter < NUM_OF_THEATERS; counter++)
+{
+	//free(theaters[counter]->rowsSeats);
+	printf("TheaterId = %d, total seats = %d\n", counter, theaters[counter]->totalSeats);
+}
+
+// Free weekSchedule
+printf("\nScreenings:\n");
+for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+{
+	ScreeningPtr* iterPtr = *weekSchedule->weekSchedule[counter]->screeningsSchedule;
+	ScreeningPtr* endPtr = iterPtr + NUM_OF_THEATERS * SCREENING_HOURS_PER_DAY - ONE;
+
+	while (iterPtr <= endPtr)
+	{
+		if (*iterPtr)
+		{
+			PrintScreening(*iterPtr);
+			printf("\n");
+		}
+		iterPtr++;
+	}
+}
+
+// Free movieHandler
+printf("\nMovies:\n");
+for (counter = INIT_VALUE; counter < NUM_OF_CHARS; counter++)
+{
+	PrintMovieTree(movieHandler->movieLists[counter]);
+}*/

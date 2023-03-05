@@ -59,7 +59,7 @@ LLLManager SearchDayHour(WeekSchedulePtr weekSchedule, us day, us hour)
 	while (iterPtr <= endPtr)
 	{
         // If the screening starts in the specific hour
-		if ((*iterPtr)->hour == hour)
+		if (*iterPtr && (*iterPtr)->hour == hour)
 			PushLLL(&managerLLL, (void*)*iterPtr);
 
 		iterPtr += SCREENING_HOURS_PER_DAY;
@@ -92,7 +92,7 @@ LLLManager SearchDayFromHour(WeekSchedulePtr weekSchedule, us day, us hour)
 }
 
 //O(1)
-LLLManager SearchDay(WeekSchedulePtr weekSchedule, us day, us hour)
+LLLManager SearchDay(WeekSchedulePtr weekSchedule, us day)
 {
     // Search all screenings in the day from hour 0
 	SearchDayFromHour(weekSchedule, day, INIT_VALUE);

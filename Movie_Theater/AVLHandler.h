@@ -84,11 +84,6 @@ Node* Insert(Node* root, void* info, us newKey) {
     if (!root) {
         return NewNode(info, newKey);
     }
-    if (root->key == newKey)
-    {
-        PushLLL(&(LLLManager)root->info, info);
-        return root;
-    }
 
     short currBF;
     us currKey = root->key;
@@ -100,6 +95,70 @@ Node* Insert(Node* root, void* info, us newKey) {
     // Go right
     else {
         root->right = Insert(root->right, info, newKey);
+    }
+
+    // update height and the balance factor of the current node
+    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
+    currBF = GetBF(root);
+
+    // Perform rotations
+    // LL
+    if (currBF > 1 && newKey < root->left->key) {
+        return LL(root);
+    }
+    // RR
+    else if (currBF < -1 && newKey > root->right->key) {
+        return RR(root);
+    }
+    // LR
+    else if (currBF > 1 && newKey > root->left->key) {
+        root->left = RR(root->left);
+        return LL(root);
+    }
+    // RL
+    else if (currBF < -1 && newKey < root->right->key) {
+        root->right = LL(root->right);
+        return RR(root);
+    }
+
+    return root;
+}
+
+// Insert a key to the avl - but for the screening tree
+Node* NewScreeningNode(void* info, us key) {
+    LLLManager manager;
+    Node* newNode = (Node*)malloc(sizeof(Node));
+
+    InitLLL(&manager);
+    PushLLL(&manager, info);
+    newNode->info = (void*) manager;
+    newNode->height = 1;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    newNode->key = key;
+    return newNode;
+}
+Node* InsertScreeningNode(Node* root, void* info, us newKey) {
+    // Root is empty
+    if (!root) {
+        return NewScreeningNode(info, newKey);
+    }
+    if (root->key == newKey)
+    {
+        PushLLL(&(LLLManager)root->info, info);
+        return root;
+    }
+
+    short currBF;
+    us currKey = root->key;
+
+    // Go left
+    if (newKey < currKey) {
+        root->left = InsertScreeningNode(root->left, info, newKey);
+    }
+    // Go right
+    else {
+        root->right = InsertScreeningNode(root->right, info, newKey);
     }
 
     // update height and the balance factor of the current node
