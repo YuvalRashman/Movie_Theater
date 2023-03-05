@@ -246,10 +246,23 @@ void FreeMatrix(DaySchedulePtr matrix)
 
 	while (iterPtr <= endPtr)
 	{
-		free((*iterPtr)->seats);
-		free(*iterPtr);
+		if (*iterPtr)
+		{
+			free((*iterPtr)->seats);
+			free(*iterPtr);
+		}
 		iterPtr++;
 	}
+}
+void FreeList(LLLManager manager)
+{
+	if (!manager->next) {
+		free(manager);
+		return;
+	}
+
+	FreeList(manager->next);
+	free(manager);
 }
 void FreeTree(Node* root)
 {
@@ -258,6 +271,7 @@ void FreeTree(Node* root)
 
 	FreeTree(root->left);
 	FreeTree(root->right);
+	FreeList((LLLManager)root->info);
 	free(root);
 }
 void FreeMovieTree(Node* movieTree)
@@ -288,7 +302,7 @@ void FreeAll()
 	// Free theaters
 	for (counter = INIT_VALUE; counter < NUM_OF_THEATERS; counter++)
 	{
-		free(theaters[counter]->rowsSeats);
+		//free(theaters[counter]->rowsSeats);
 		free(theaters[counter]);
 	}
 
@@ -327,6 +341,9 @@ LLLManager SearchMovieByHour(String movieName, us movieId, us day, us hour) {
 	return (LLLNodePtr)ClosestHigherKey(screenings, hour)->info;
 }
 
+
+
+
 void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	ScreeningPtr screening = (ScreeningPtr)calloc(1 ,sizeof(Screening));
 	screening->movie = movie;
@@ -342,7 +359,6 @@ void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	}
 	Insert(movie->days[day], (void*)screening, hour);
 }
-
 MovieTheaterPtr newDataTheater(us theaterId, us rowNum, us colNum, us* rowsSeats, us totalSeats) {
 	MovieTheaterPtr theater = (MovieTheaterPtr) calloc(1, sizeof(MovieTheater));
 	theater->colNum = colNum;
@@ -352,22 +368,21 @@ MovieTheaterPtr newDataTheater(us theaterId, us rowNum, us colNum, us* rowsSeats
 	theater->rowsSeats = rowsSeats;
 	return theater;
 }
-
 void InitData() {
 	
 	InitMovieHandler();
 	InitNewWeekSchedule();
 
 	//create movies
-	newDataMovie(1, _strdup("ant man and the wasp"), 120);
-	newDataMovie(2, _strdup("hulk"), 60);
-	newDataMovie(3, _strdup("star wars"), 40);
-	newDataMovie(4, _strdup("kill bill"), 20);
-	newDataMovie(5, _strdup("twenty one jump street"), 50);
-	newDataMovie(6, _strdup("spongebob the movie (best)"), 120);
-	newDataMovie(7, _strdup("avengers 1"), 80);
-	newDataMovie(8, _strdup("harry poter solving all your problems"), 50);
-	newDataMovie(9, _strdup("space jam"), 49);
+	newDataMovie(1, _strdup("ant man and the wasp"), 1.9);
+	newDataMovie(2, _strdup("hulk"), 1.1);
+	newDataMovie(3, _strdup("star wars"), 0.7);
+	newDataMovie(4, _strdup("kill bill"), 1.1);
+	newDataMovie(5, _strdup("twenty one jump street"), 0.6);
+	newDataMovie(6, _strdup("spongebob the movie (best)"), 1.3);
+	newDataMovie(7, _strdup("avengers 1"), 1.1);
+	newDataMovie(8, _strdup("harry poter solving all your problems"), 0.3);
+	newDataMovie(9, _strdup("space jam"), 0.7);
 
 	//create theaters
 	int arr1[4] = { 6, 10, 15, 20 };
