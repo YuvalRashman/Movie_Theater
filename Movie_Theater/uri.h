@@ -5,22 +5,23 @@
 #include "LLLHandler.h"
 #include "math.h"
 
+
 //Movie Seats
-void ShowMovieSeats(ScreeningPtr screenPtr) 
+void ShowMovieSeats(ScreeningPtr screenPtr)
 {
 	us seatsInRow;
 	char bit;
 	us totalSeats = ZERO;
-    int row;
+	int row;
 	for (us rowOffset = ZERO; rowOffset < theaters[screenPtr->theaterId]->rowNum; rowOffset++)
 	{
-		seatsInRow = theaters[screenPtr->theaterId]->rowSeats[rowOffset];
+		seatsInRow = theaters[screenPtr->theaterId]->rowsSeats[rowOffset];
 		for (us seat = ZERO; seat < seatsInRow; seat++)
 		{
 			bit = (screenPtr->seats[(totalSeats / EIGHT)] & (ONE << totalSeats % EIGHT)) >> (totalSeats % EIGHT);
 			printf("%c", bit);
-			
-				totalSeats++;
+
+			totalSeats++;
 		}
 		printf("\n");
 	}
@@ -33,7 +34,7 @@ void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 	screenPtr->seatsLeft--;
 }
 
-void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat) 
+void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 {
 	String movie = screenPtr->movie->name;
 	printf("%s\n", movie);
@@ -42,6 +43,6 @@ void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 	printf("%hu\n", startTime);
 	us rowNumber;
 	us sum;
-	for (rowNumber = ZERO; sum < chosenSeat; sum += theaters[screenPtr->theaterId]->rowSeats[rowNumber], rowNumber++);
+	for (rowNumber = ZERO; sum < chosenSeat; sum += (theaters[screenPtr->theaterId])->rowsSeats[rowNumber], rowNumber++);
 	printf("%hu %hu", rowNumber, sum - chosenSeat);
 }
