@@ -347,7 +347,7 @@ void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	screening->movie = movie;
 	screening->seatsLeft = theaters[theaterId]->totalSeats;
 	screening->theaterId = theaterId;
-	screening->seats = (Mask*) calloc((theaters[theaterId]->totalSeats / sizeof(char)), sizeof(Mask)); // add malloc to mask
+	screening->seats = (Mask*)calloc((theaters[theaterId]->totalSeats - ONE) / sizeof(char) + ONE, sizeof(Mask)); // add malloc to mask
 	screening->hour = hour; // ??? redandecy
 	int hourOffset;
 	int endHour = ceil(hour + movie->length / 60);
@@ -383,15 +383,36 @@ void InitData() {
 	newDataMovie(9, _strdup("space jam"), 0.7);
 
 	//create theaters
-	int arr1[4] = { 6, 10, 15, 20 };
+	us* arr1 = (us*)malloc(sizeof(us) * 4); 
+	arr1[0] = 6;
+	arr1[1] = 10;
+	arr1[2] = 15;
+	arr1[3] = 20;
 	theaters[0] = newDataTheater(0, 4, 20, arr1, 51);
-	int arr2[3] = { 4 ,3 ,3 };
+	us* arr2 = (us*)malloc(sizeof(us) * 3);
+	arr2[0] = 4;
+	arr2[1] = 3;
+	arr2[3] = 3;
 	theaters[1] = newDataTheater(1, 3, 10, arr2, 16);
-	int arr3[5] = { 8,6,6,6, 12 };
+	us* arr3 = (us*)malloc(sizeof(us) * 5);
+	arr3[0] = 8;
+	arr3[1] = 6;
+	arr3[3] = 6;
+	arr3[4] = 6;
+	arr3[5] = 12;
 	theaters[2] = newDataTheater(2, 5, 12, arr3, 38);
-	int arr4[2] = { 5,5 };
+	us* arr4 = (us*)malloc(sizeof(us) * 2);
+	arr4[0] = 5;
+	arr4[1] = 5;
 	theaters[3] = newDataTheater(3, 2, 5, arr4, 10);
-	int arr5[6] = { 10,10,10,10,10,10 };
+	us* arr5 = (us*)malloc(sizeof(us) * 7);
+	arr5[0] = 10;
+	arr5[1] = 10;
+	arr5[2] = 10;
+	arr5[3] = 10;
+	arr5[4] = 10;
+	arr5[5] = 10;
+	arr5[6] = 10;
 	theaters[4] = newDataTheater(4, 6, 10, arr5, 60);
 
 	//create screening
@@ -490,13 +511,58 @@ void PrintMovieTree(Node* movieTree)
 	}
 }
 
+//Movie Seats
+void ShowMovieSeats(ScreeningPtr screenPtr)
+{
+	int seatsInRow;
+	int bit;
+	us totalSeats = ZERO;
+	int row;
+	MovieTheaterPtr th;
+	for (us rowOffset = ZERO; rowOffset < theaters[screenPtr->theaterId]->rowNum; rowOffset++)
+	{
+		th = theaters[screenPtr->theaterId];
+		seatsInRow = th->rowsSeats[rowOffset];
+		for (us seat = ZERO; seat < seatsInRow; seat++)
+		{
+			bit = (screenPtr->seats[(totalSeats / EIGHT)] & (ONE << totalSeats % EIGHT)) >> (totalSeats % EIGHT);
+			printf("%d", bit);
+
+			totalSeats++;
+		}
+		printf("\n");
+	}
+}
+
+void PickMovieSeats(ScreeningPtr screenPtr, us seat)
+{
+	ShowMovieSeats(screenPtr);
+	screenPtr->seats[(seat / EIGHT)] |= CHAIR_TAKEN << (seat % EIGHT);
+	screenPtr->seatsLeft--;
+}
+
+void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
+{
+	String movie = screenPtr->movie->name;
+	printf("%s\n", movie);
+
+	us startTime = screenPtr->hour;
+	printf("%hu\n", startTime);
+	us rowNumber;
+	us sum = 0;
+	for (rowNumber = ZERO; sum < chosenSeat; sum += (theaters[screenPtr->theaterId])->rowsSeats[rowNumber], rowNumber++);
+	printf("%hu %hu", rowNumber, sum - chosenSeat);
+}
+
 int main()
 {
 	InitData();
 
-	LLLManager n = SearchDay(weekSchedule, 0);
-	PrintScreening(n);
-	FreeList(n);
+	//LLLManager n = SearchDay(weekSchedule, 0);
+	MoviePtr movie = (FindMovie("ant man and the wasp", 1));
+	Node* node = movie->days[0];
+	ScreeningPtr screen = (ScreeningPtr)((LLLManager)node->info)->info;
+	ShowMovieSeats(screen);
 
 	FreeAll();
 }

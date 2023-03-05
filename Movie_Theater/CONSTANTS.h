@@ -10,6 +10,7 @@
 #define ZERO 0
 #define ONE 1
 #define TWO 2
+#define EIGHT 8
 
 #define CHAIR_TAKEN 0
 #define CHAIR_UNOCCUPIED 1
