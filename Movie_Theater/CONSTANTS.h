@@ -12,8 +12,8 @@
 #define TWO 2
 #define EIGHT 8
 
-#define CHAIR_TAKEN 0
-#define CHAIR_UNOCCUPIED 1
+#define CHAIR_TAKEN 1
+#define CHAIR_UNOCCUPIED 0
 
 #define MAX(X,Y) X > Y ? X : Y
 #define MIN(X,Y) X < Y ? X : Y

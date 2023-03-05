@@ -536,7 +536,6 @@ void ShowMovieSeats(ScreeningPtr screenPtr)
 
 void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 {
-	ShowMovieSeats(screenPtr);
 	screenPtr->seats[(seat / EIGHT)] |= CHAIR_TAKEN << (seat % EIGHT);
 	screenPtr->seatsLeft--;
 }
@@ -559,11 +558,6 @@ int main()
 	InitData();
 
 	//LLLManager n = SearchDay(weekSchedule, 0);
-	MoviePtr movie = (FindMovie("ant man and the wasp", 1));
-	Node* node = movie->days[0];
-	ScreeningPtr screen = (ScreeningPtr)((LLLManager)node->info)->info;
-	ShowMovieSeats(screen);
-
 	FreeAll();
 }
 
