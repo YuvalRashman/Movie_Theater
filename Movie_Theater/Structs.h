@@ -24,12 +24,12 @@ typedef struct Movie {
 	String name;
 	float length;
 	Node* days[NUM_OF_DAYS_IN_WEEK];
-} *MoviePtr;
+} Movie, *MoviePtr;
 
 // MoviesHanler
 typedef struct MovieHandler {
 	LLLManager movieLists[NUM_OF_CHARS];
-} *MovieHandlerPtr;
+} MovieHandler, *MovieHandlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {

@@ -1,9 +1,18 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "AVLHandler.h"
 
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 WeekSchedulePtr weekSchedule;
 MovieHandlerPtr movieHandler;
+us moviesNum;
 
+// Hash for movies
+us hash(MoviePtr movie)
+{
+	return *movie->name - 'a';
+}
+
+// Theaters
 us* NewArray(us len)
 {
 	us* vector = (us*)malloc(sizeof(us) * len);
@@ -54,13 +63,82 @@ void InitTheaters()
 	}
 }
 
+// Movie Handler
+void InitMovieHandler()
+{
+	// calloc - usefull for allocating memory for all lists as manager = NULL
+	movieHandler = (MovieHandlerPtr)calloc(ONE, sizeof(MovieHandler));
+}
+
+// Week Schedule
+void InitNewWeekSchedule()
+{
+	us counter;
+	weekSchedule = (WeekSchedulePtr)malloc(sizeof(WeekSchedule));
+
+	// Allocate memory for all daySchedules
+	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+	{
+		// Calloc - for initializing all screenings in the matrix as NULL!
+		weekSchedule->weekSchedule[counter] = (DaySchedulePtr)calloc(ONE, sizeof(DaySchedule));
+	}
+}
+
+// New Movies
+MoviePtr InputNewMovie(us movieId)
+{
+	MoviePtr newMovie = (MoviePtr)calloc(ONE, sizeof(Movie));
+
+	printf("New movie:\n");
+
+	// movieId
+	newMovie->movieId = movieId;
+
+	// name
+	printf("Enter movie name: ");
+	scanf("%s", newMovie->name);
+
+	// length
+	printf("Enter movie length (in hours): ");
+	scanf("%f", &newMovie->length);
+
+	return newMovie;
+}
+void InputMovies()
+{
+	us counter;
+	MoviePtr movieInp;
+
+	// Scan for the number of movies
+	printf("Please input the initial number of movies: ");
+	scanf("%hd", &moviesNum);
+
+	for (counter = INIT_VALUE; counter < moviesNum; counter++)
+	{
+		movieInp = InputNewMovie(counter);
+		PushLLL(&movieHandler->movieLists[hash(movieInp)], (void*)movieInp);
+	}
+}
+
+// New Screenings
+void InputNewScreening()
+{
+
+}
+void InputScreenings()
+{
+
+}
+
 void Init() {
 	InitTheaters(); // Completed
-	InitNewWeekSchedule(); // To be completed
-	InitMovieHandler(); // To be completed
+	InitNewWeekSchedule(); // Completed
+	InitMovieHandler(); // Completed
+	InputMovies(); // Completed
+	InputScreenings(); // To be completed - input screenings and arrange it in the matrixes and trees
 }
 
 int main()
 {
-
+	Init();
 }
