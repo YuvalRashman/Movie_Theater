@@ -45,7 +45,7 @@ typedef struct MovieTheater {
 typedef struct Screening {
 	MoviePtr movie;
 	us theaterId;
-	us hour;
+	//us hour;
 	Mask* seats;
 	us seatsLeft;
 } *ScreeningPtr, Screening;

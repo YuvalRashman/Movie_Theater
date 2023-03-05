@@ -12,7 +12,7 @@ MoviePtr FindMovie(String movieName, us movieId)
 }
 
 // Hash for movies
-us hash(MoviePtr movie)
+int hash(MoviePtr movie)
 {
 	return *movie->name - 'a';
 }

@@ -1,7 +1,7 @@
 // Avl handler
 #include <stdio.h>
 #include <stdlib.h>
-#include <Math.h>
+#include <math.h>
 #include "Structs.h"
 
 typedef short Bool;
@@ -151,7 +151,7 @@ void* DupInfo(void* info)
     ScreeningPtr curr = (ScreeningPtr)info;
     ScreeningPtr duped = (ScreeningPtr) malloc(sizeof(Screening));
     
-    duped->hour = curr->hour;
+    //duped->hour = curr->hour;
     duped->movie = curr->movie;
     duped->seatsLeft = curr->seatsLeft;
     duped->seats = curr->seats;
@@ -169,7 +169,7 @@ Node* Delete(Node* root, us key) {
     }
 
     Node* temp;
-    us currKey = GetKeyOfNode(root);
+    us currKey = root->key;//GetKeyOfNode(root);
 
     // Go left
     if (key < currKey) {
@@ -205,7 +205,7 @@ Node* Delete(Node* root, us key) {
             }
             free(root->info);
             root->info = DupInfo(temp->info);
-            root->right = Delete(root->right, GetKeyOfNode(temp));
+            root->right = Delete(root->right, temp->key);
         }
     }
 
@@ -236,7 +236,7 @@ Node* Delete(Node* root, us key) {
 void inorder(Node* root) {
     if (!root) {
         inorder(root->left);
-        printf("%d ", ((ScreeningPtr)root->info)->hour);
+        printf("%d ", root->key);
         inorder(root->right);
     }
 }

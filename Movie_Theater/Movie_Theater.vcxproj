@@ -131,7 +131,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AVLHandler.h" />
+    <ClInclude Include="CONSTANTS.h" />
+    <ClInclude Include="LLLHandler.h" />
+    <ClInclude Include="searches.h" />
+    <ClInclude Include="statistics.h" />
     <ClInclude Include="Structs.h" />
+    <ClInclude Include="uri.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
