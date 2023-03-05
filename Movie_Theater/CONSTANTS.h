@@ -18,7 +18,7 @@
 #define MIN(X,Y) X < Y ? X : Y
 #define GET_MASK_LENGTH(seatsNum) (seatsNum - 1) / sizeof(char) + 1 
 
-#define NUM_OF_THEATERS 10
+#define NUM_OF_THEATERS 5
 #define SCREENING_HOURS_PER_DAY 8
 
 #define CONF_LEVEL 0.95

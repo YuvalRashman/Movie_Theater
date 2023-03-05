@@ -6,7 +6,7 @@
 #include "LLLHandler.h"
 
 // String
-typedef char String[MAX_STRING_LEN];
+typedef char* String;
 
 typedef char Mask;
 typedef unsigned short us;
@@ -39,7 +39,7 @@ typedef struct MovieTheater {
 	us theaterId;
 	us* rowsSeats; //diynamic array
 	us totalSeats;
-} *MovieTheaterPtr;
+} MovieTheater, *MovieTheaterPtr;
 
 // Screenings
 typedef struct Screening {
