@@ -556,10 +556,27 @@ void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 	printf("=========================================================\n");
 }
 
+void printMovieCodeTree(Node* movie) {
+	if (movie)
+	{
+		printf("movie name: %s | code: %d\n", ((MoviePtr)(movie->info))->name, ((MoviePtr)(movie->info))->movieId);
+		printMovieCodeTree(movie->left);
+		printMovieCodeTree(movie->right);
+	}
+}
+
+void printMovieCodes() {
+	us i;
+	for ( i = 0; i < NUM_OF_CHARS; i++)
+	{
+		printMovieCodeTree(movieHandler->movieLists[i]);
+	}
+}
+
 int main()
 {
 	InitData();
-
+	printMovieCodes();
 	//LLLManager n = SearchDay(weekSchedule, 0);
 	FreeAll();
 }
