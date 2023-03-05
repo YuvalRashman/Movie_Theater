@@ -13,6 +13,7 @@ typedef unsigned short us;
 
 typedef struct node {
 	void* info;
+	us key;
 	us height;
 	struct node* left;
 	struct node* right;
@@ -20,7 +21,7 @@ typedef struct node {
 
 // Movie
 typedef struct Movie {
-	us MovieId;
+	us movieId;
 	String name;
 	float length;
 	Node* days[NUM_OF_DAYS_IN_WEEK];
@@ -28,7 +29,7 @@ typedef struct Movie {
 
 // MoviesHanler
 typedef struct MovieHandler {
-	LLLManager movieLists[NUM_OF_CHARS];
+	Node* movieLists[NUM_OF_CHARS];
 } MovieHandler, *MovieHandlerPtr;
 
 // MovieTheater

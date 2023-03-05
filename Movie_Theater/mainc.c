@@ -6,6 +6,11 @@ WeekSchedulePtr weekSchedule;
 MovieHandlerPtr movieHandler;
 us moviesNum;
 
+MoviePtr FindMovie(String movieName, us movieId)
+{
+	return (MoviePtr)Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
+}
+
 // Hash for movies
 us hash(MoviePtr movie)
 {
@@ -116,14 +121,14 @@ void InputMovies()
 	for (counter = INIT_VALUE; counter < moviesNum; counter++)
 	{
 		movieInp = InputNewMovie(counter);
-		PushLLL(&movieHandler->movieLists[hash(movieInp)], (void*)movieInp);
+		movieHandler->movieLists[hash(movieInp)] = Insert(movieHandler->movieLists[hash(movieInp)], (void*)movieInp, movieInp->movieId);
 	}
 }
 
 // New Screenings
 void InputNewScreening()
 {
-
+	// use of FindMovie()!
 }
 void InputScreenings()
 {

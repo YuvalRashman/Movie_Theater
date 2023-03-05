@@ -15,12 +15,13 @@ Bool IsLeaf(Node* root)
 
 // Create a new node with the given key
 // O(1)
-Node* NewNode(void* info) {
+Node* NewNode(void* info, us key) {
     Node* newNode = (Node*) malloc(sizeof(Node));
     newNode->info = info;
     newNode->height = 1;
     newNode->left = NULL;
     newNode->right = NULL;
+    newNode->key = key;
     return newNode;
 }
 
@@ -28,7 +29,7 @@ Node* NewNode(void* info) {
 // O(1)
 us GetHeight(Node* root) {
     if (!root) {
-        return 0;
+        return ZERO;
     }
 
     return root->height;
@@ -38,7 +39,7 @@ us GetHeight(Node* root) {
 // O(1)
 us GetBF(Node* root) {
     if (!root) {
-        return 0;
+        return ZERO;
     }
 
     return GetHeight(root->left) - GetHeight(root->right);
@@ -76,32 +77,24 @@ Node* LL(Node* root) {
     return left;
 }
 
-// O(1)
-// Info of node is void* so the method extracts its key!
-us GetKeyOfNode(Node* root)
-{
-    return ((ScreeningPtr)root->info)->hour;
-}
-
 // Insert a key into the tree
 // O(log(n))
-Node* Insert(Node* root, void* info) {
-    us currBF;
-    us currKey = GetKeyOfNode(root);
-    us newKey = ((ScreeningPtr)info)->hour;
-
+Node* Insert(Node* root, void* info, us newKey) {
     // Root is empty
     if (!root) {
-        return NewNode(info);
+        return NewNode(info, newKey);
     }
+
+    us currBF;
+    us currKey = root->key;
 
     // Go left
     if (newKey < currKey) {
-        root->left = Insert(root->left, info);
+        root->left = Insert(root->left, info, newKey);
     }
     // Go right
     else {
-        root->right = Insert(root->right, info);
+        root->right = Insert(root->right, info, newKey);
     }
 
     // update height and the balance factor of the current node
@@ -110,20 +103,20 @@ Node* Insert(Node* root, void* info) {
 
     // Perform rotations
     // LL
-    if (currBF > 1 && newKey < GetKeyOfNode(root->left)) {
+    if (currBF > 1 && newKey < root->left->key) {
         return LL(root);
     }
     // RR
-    else if (currBF < -1 && newKey > GetKeyOfNode(root->right)) {
+    else if (currBF < -1 && newKey > root->right->key) {
         return RR(root);
     }
     // LR
-    else if (currBF > 1 && newKey > GetKeyOfNode(root->left)) {
+    else if (currBF > 1 && newKey > root->left->key) {
         root->left = RR(root->left);
         return LL(root);
     }
     // RL
-    else if (currBF < -1 && newKey < GetKeyOfNode(root->right)) {
+    else if (currBF < -1 && newKey < root->right->key) {
         root->right = LL(root->right);
         return RR(root);
     }
@@ -138,7 +131,7 @@ Node* Search(Node* root, us key) {
         return root;
     }
     else {
-        us currKey = GetKeyOfNode(root);
+        us currKey = root->key;
 
         if (key < currKey) {
             return Search(root->left, key);
@@ -165,7 +158,7 @@ void* DupInfo(void* info)
     duped->theaterId = curr->theaterId;
 
     return (void*) duped;
-}
+}// Rashman continue from here
 
 // Delete a key from the tree
 // O(log(n))

@@ -1,10 +1,7 @@
 ﻿-#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "AVLHandler.h"
-#include "CONSTANTS.h"
-#include "LLLHandler.h"
-#include "structs.h"
+#include "searches.h"
 
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 
