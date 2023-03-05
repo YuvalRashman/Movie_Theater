@@ -53,8 +53,8 @@ void CombineLists(LLLManagerPtr managerPtr, LLLManagerPtr secondManagerPtr)
 {
 	LLLNodePtr lllIter = *managerPtr;
 
-	if (!*managerPtr)
-		*managerPtr = secondManagerPtr;
+	if (!lllIter)
+		*managerPtr = *secondManagerPtr;
 	else {
 		while (lllIter->next)
 		{

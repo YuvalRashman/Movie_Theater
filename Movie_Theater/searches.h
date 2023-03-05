@@ -34,15 +34,6 @@ Node* ClosestHigherKey(Node* node, int key) {
     return ClosestHigherKeyRec(node, key, NULL);
 }
 
-// O(n) - מייצג את מספר האיברים n עבור עץ
-void TreeToListInOrder(LLLManager* manager, Node* root) {
-    if (!root) {
-        TreeToListInOrder(manager, root->left);
-        CombineLists(manager, &((LLLNodePtr)root->info));
-        TreeToListInOrder(manager, root->right);
-    }
-}
-
 // Find movies by request day and hour
 // O(1)
 LLLManager SearchDayHour(WeekSchedulePtr weekSchedule, us day, us hour)
@@ -80,7 +71,7 @@ LLLManager SearchDayFromHour(WeekSchedulePtr weekSchedule, us day, us hour)
 	InitLLL(&managerLLL);
 
     // Loop from the current hour to the end
-	while (hourIter <= SCREENING_HOURS_PER_DAY)
+	while (hourIter < SCREENING_HOURS_PER_DAY)
 	{
 		temp = SearchDayHour(weekSchedule, day, hourIter);
 		CombineLists(&managerLLL, &temp);
@@ -103,7 +94,7 @@ LLLManager SearchDay(WeekSchedulePtr weekSchedule, us day)
 // O(1)
 void PrintScreening(ScreeningPtr screeningPtr)
 {
-    printf("%s: starting hour = %d in theater %d\n", screeningPtr->movie->name, screeningPtr->hour, screeningPtr->theaterId);
+    printf("%d: %s: starting hour = %d in theater %d\n", screeningPtr->movie->movieId, screeningPtr->movie->name, screeningPtr->hour, screeningPtr->theaterId);
 }
 
 // O(1)

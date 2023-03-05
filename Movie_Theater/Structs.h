@@ -27,10 +27,10 @@ typedef struct Movie {
 	Node* days[NUM_OF_DAYS_IN_WEEK];
 } Movie, *MoviePtr;
 
-// MoviesHanler
+// MoviesHandler
 typedef struct MovieHandler {
 	Node* movieLists[NUM_OF_CHARS];
-} MovieHandler, * MovieHandlerPtr;
+} MovieHandler, *MovieHandlerPtr;
 
 // MovieTheater
 typedef struct MovieTheater {
