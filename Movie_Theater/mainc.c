@@ -371,7 +371,6 @@ void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	screening->seats = (Mask*)calloc((theaters[theaterId]->totalSeats - ONE) / sizeof(char) + ONE, sizeof(Mask)); // add malloc to mask
 	screening->hour = hour; // ??? redandecy
 	int hourOffset;
-	int endHour = ceil(hour + movie->length / 60);
 	int endHour = ceil(hour + movie->length);
 	for (hourOffset = hour; hourOffset < endHour; hourOffset++)
 	{
