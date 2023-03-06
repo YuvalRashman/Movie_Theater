@@ -2,38 +2,22 @@
 #include "statistics.h"
 #include <string.h>
 
+// Globals
 MovieTheaterPtr theaters[NUM_OF_THEATERS];
 WeekSchedulePtr weekSchedule;
 MovieHandlerPtr movieHandler;
 us moviesNum;
 
-// Hash for movies
-// O(1)
-us hash(String movie)
-{
-	return *(movie) - 'a';
-}
+// **** Useful Methods ****
 
-// O(n)
+// O(log(n)) - uses open hash and searches in a balanced tree
+// אורך הקלט הוא מספר הצמתים בעץ
 MoviePtr FindMovie(String movieName, us movieId)
 {
-	return (MoviePtr)Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
+	return (MoviePtr) Search(movieHandler->movieLists[hash(movieName)], movieId)->info;
 }
 
-// O(n)
-us SumVec(us* vecStartPtr, us* vecEndPtr, us delta)
-{
-	us* iterPtr = vecStartPtr;
-	us sum = INIT_VALUE;
-
-	while (iterPtr <= vecEndPtr)
-	{
-		sum += *iterPtr;
-		iterPtr += delta;
-	}
-
-	return sum;
-}
+// **** Init Methods ****
 
 // Theaters
 us* NewArray(us len)
@@ -239,7 +223,10 @@ void Init() {
 	InputScreenings(); // completed
 }
 
+// **** Free Methods ****
+
 // Free structure
+// O(1) - אין אורך קלט
 void FreeMatrix(DaySchedulePtr matrix)
 {
 	ScreeningPtr* startPtr = *(matrix->screeningsSchedule);
@@ -247,18 +234,23 @@ void FreeMatrix(DaySchedulePtr matrix)
 	ScreeningPtr* iterPtr = endPtr;
 	us currHour;
 
+	// For each element in the matrix
 	while (iterPtr >= startPtr)
 	{
 		currHour = (iterPtr - startPtr) % SCREENING_HOURS_PER_DAY;
 
+		// Free it if the screening starts in the current hour
 		if (*iterPtr && (*iterPtr)->hour == currHour)
 		{
 			//free((*iterPtr)->seats);
 			free(*iterPtr);
 		}
+
+		// Next
 		iterPtr--;
 	}
 }
+// O(n) - אורך הקלט הוא מספר האיברים ברשימה
 void FreeList(LLLManager manager)
 {
 	if (!manager)
@@ -271,6 +263,7 @@ void FreeList(LLLManager manager)
 	FreeList(manager->next);
 	free(manager);
 }
+// O(n) - מייצג את מספר ההקרנות במבנה n
 void FreeTree(Node* root)
 {
 	if (!root)
@@ -278,9 +271,15 @@ void FreeTree(Node* root)
 
 	FreeTree(root->left);
 	FreeTree(root->right);
+	
+	// Free all screenings in the list in the info (sized m)
 	FreeList((LLLManager)root->info);
+	
+	// Free node
 	free(root);
 }
+// O(n*m) - מייצג את מספר ההקרנות לכל סרט n
+// מייצג את מספר הסרטים במבנה m
 void FreeMovieTree(Node* movieTree)
 {
 	us counter;
@@ -295,13 +294,16 @@ void FreeMovieTree(Node* movieTree)
 	// Free day-trees
 	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
 	{
+		// Free screening-tree for each day of the movie
 		FreeTree(((MoviePtr)movieTree->info)->days[counter]);
 	}
 
-	// Free into and node
+	// Free info and node
 	free(movieTree->info);
 	free(movieTree);
 }
+// O(n*m) - מייצג את מספר ההקרנות לכל סרט n
+// מייצג את מספר הסרטים במבנה m
 void FreeAll()
 {
 	us counter;
@@ -330,38 +332,53 @@ void FreeAll()
 	free(movieHandler);
 }
 
+// **** More searches ****
 
 // Searches on movies
 // O(n) - מייצג את מספר האיברים n עבור עץ
-void TreeToListInOrder(LLLManager* manager, Node* root) {
+void TreeToListPreOrder(LLLManager* manager, Node* root) {
 	if (root) {
 		CombineLists(manager, &((LLLNodePtr)root->info));
-		TreeToListInOrder(manager, root->left);
-		TreeToListInOrder(manager, root->right);
+		TreeToListPreOrder(manager, root->left);
+		TreeToListPreOrder(manager, root->right);
 	}
 }
+
+// O(log(n)) - מייצג את מספר הסרטים n
+// מספר ההקרנות המקסימלי הוא קבוע, לכן לא משפיע על הסיבוכיות
 LLLManager SearchMovieFromHour(String movieName, us movieId, us day, us hour) {
+	// Find current movie by its keys
 	MoviePtr currMovie = FindMovie(movieName, movieId);
+
+	// Find the closest hour
 	Node* root = ClosestHigherKey(currMovie->days[day], hour);
 	LLLManager manager = NULL;
 
-	// Make list from all nodes in the current sub-tree
+	// Make list from all nodes in the current sub-tree (from the current hour)
 	if (root) {
 		manager = (LLLManager)root->info;
-		TreeToListInOrder(&manager, root->right);
+		TreeToListPreOrder(&manager, root->right);
 		return manager;
 	}
 
 	return NULL;
 	
 }
+
+// O(log(n)) - מייצג את מספר הסרטים n
+// מספר ההקרנות המקסימלי הוא קבוע, לכן לא משפיע על הסיבוכיות
 LLLManager SearchMovieByHour(String movieName, us movieId, us day, us hour) {
+	// Find current movie according to its keys
 	MoviePtr moviePtr = FindMovie(movieName, movieId);
 	Node* screenings = moviePtr->days[day];
+	// Find Closest screening hour
 	Node* closestMovie = ClosestHigherKey(screenings, hour);
 
+	// Return if not NULL!
 	return closestMovie ? (LLLNodePtr)closestMovie->info : NULL;
 }
+
+// **** Init Manually Methods ****
 
 void newScreening(int day, MoviePtr movie, us theaterId, int hour) {
 	ScreeningPtr screening = (ScreeningPtr)calloc(1 ,sizeof(Screening));
@@ -492,46 +509,7 @@ void InitData() {
 	newScreening(6, FindMovie("spongebob the movie (best)", 6), 0, 4);
 }
 
-void PrintList(LLLManager manager)
-{
-	if (!manager)
-		return;
-	if (!manager->next) {
-		PrintScreening((ScreeningPtr)manager->info);
-		return;
-	}
-
-	PrintList(manager->next);
-	PrintScreening((ScreeningPtr)manager->info);
-}
-void PrintTree(Node* root)
-{
-	if (!root)
-		return;
-
-	PrintTree(root->left);
-	PrintTree(root->right);
-	PrintList((LLLManager)root->info);
-}
-void PrintMovieTree(Node* movieTree)
-{
-	us counter;
-
-	if (!movieTree)
-		return;
-
-	// PostOrder
-	PrintMovieTree(movieTree->left);
-	PrintMovieTree(movieTree->right);
-
-	// Free day-trees
-	printf("Movie %s:\n", ((MoviePtr)movieTree->info)->name);
-	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
-	{
-		printf("Day number %d:\n", counter);
-		PrintTree(((MoviePtr)movieTree->info)->days[counter]);
-	}
-}
+// **** Tickets Handlers ****
 
 //Movie Seats
 void ShowMovieSeats(ScreeningPtr screenPtr)
@@ -604,6 +582,10 @@ void BuyTicket(char* movieName, us movieId, us seat, us hour, us day) {
 	ShowMovieTicket(screening, seat);
 }
 
+
+
+// Print Movie Tree
+// O(N) מספר הסרטים N
 void printMovieCodeTree(Node* movie) {
 	if (movie)
 	{
@@ -613,17 +595,24 @@ void printMovieCodeTree(Node* movie) {
 	}
 }
 
+// Show all movies O(N)
+// מספר הסרטים N
 void printMovieCodes() {
-	us i;
-	for ( i = 0; i < NUM_OF_CHARS; i++)
+	us firstChar;
+
+	// For all open hashes
+	for ( firstChar = INIT_VALUE; firstChar < NUM_OF_CHARS; firstChar++)
 	{
-		printMovieCodeTree(movieHandler->movieLists[i]);
+		// Print all movies
+		printMovieCodeTree(movieHandler->movieLists[firstChar]);
 	}
 }
 
 int main()
 {
 	InitData();
+
+	// Show movies
 	printMovieCodes();
 	
 	weekSchedule->weekSchedule[0]->screeningsSchedule[0][4]->seatsLeft -= 6;
@@ -639,7 +628,48 @@ int main()
 
 	ExpectationsPerDay(&week, moviesNum, &lower, &upper);
 
-	printf("%lf - %lf", lower, upper);
+	printf("%lf - %lf\n", lower, upper);
 
 	FreeAll();
 }
+
+/*void PrintList(LLLManager manager)
+{
+	if (!manager)
+		return;
+	if (!manager->next) {
+		PrintScreening((ScreeningPtr)manager->info);
+		return;
+	}
+
+	PrintList(manager->next);
+	PrintScreening((ScreeningPtr)manager->info);
+}
+void PrintTree(Node* root)
+{
+	if (!root)
+		return;
+
+	PrintTree(root->left);
+	PrintTree(root->right);
+	PrintList((LLLManager)root->info);
+}
+void PrintMovieTree(Node* movieTree)
+{
+	us counter;
+
+	if (!movieTree)
+		return;
+
+	// PostOrder
+	PrintMovieTree(movieTree->left);
+	PrintMovieTree(movieTree->right);
+
+	// Free day-trees
+	printf("Movie %s:\n", ((MoviePtr)movieTree->info)->name);
+	for (counter = INIT_VALUE; counter < NUM_OF_DAYS_IN_WEEK; counter++)
+	{
+		printf("Day number %d:\n", counter);
+		PrintTree(((MoviePtr)movieTree->info)->days[counter]);
+	}
+}*/

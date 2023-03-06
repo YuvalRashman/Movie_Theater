@@ -8,16 +8,20 @@
 // String
 typedef char* String;
 
+// Mask
 typedef char Mask;
+
+// us
 typedef unsigned short us;
 
+// AVL Node
 typedef struct node {
 	void* info;
 	us key;
 	us height;
 	struct node* left;
 	struct node* right;
-} Node;
+} Node, *NodePtr;
 
 // Movie
 typedef struct Movie {
@@ -59,10 +63,12 @@ typedef struct WeekSchedule {
 	DaySchedulePtr weekSchedule[NUM_OF_DAYS_IN_WEEK];
 } *WeekSchedulePtr, WeekSchedule;
 
+// Enum
 typedef	enum DaysOfWeek {
-	SUNDAY = 1, MONDAY = 2, TUESDAY = 3, WEDNESDAY = 4, THURSDAY = 5, FRIDAY = 6, SATURDAY = 7
+	SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
 };
 
+// Summeries
 typedef struct DaySummery {
 	int* summeryMatrix[SCREENING_HOURS_PER_DAY + ONE];
 } *DaySummaryPtr, DaySummery;

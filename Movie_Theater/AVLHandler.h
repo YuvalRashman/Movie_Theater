@@ -1,11 +1,8 @@
-// Avl handler
+﻿// Avl handler
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "Structs.h"
-
-typedef short Bool;
-typedef unsigned short us;
 
 // O(1)
 Bool IsLeaf(Node* root)
@@ -17,15 +14,16 @@ Bool IsLeaf(Node* root)
 // O(1)
 Node* NewNode(void* info, us key) {
     Node* newNode = (Node*) malloc(sizeof(Node));
+
     newNode->info = info;
-    newNode->height = 1;
+    newNode->height = ONE;
     newNode->left = NULL;
     newNode->right = NULL;
     newNode->key = key;
     return newNode;
 }
 
-// Get the height of the node
+// Get the height of the node - good for cases when the node is NULL
 // O(1)
 us GetHeight(Node* root) {
     if (!root) {
@@ -55,8 +53,8 @@ Node* RR(Node* root) {
     right->left = root;
     
     // Update heights
-    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
-    right->height = 1 + fmax(GetHeight(right->left), GetHeight(right->right));
+    root->height = ONE + fmax(GetHeight(root->left), GetHeight(root->right));
+    right->height = ONE + fmax(GetHeight(right->left), GetHeight(right->right));
 
     return right;
 }
@@ -71,14 +69,14 @@ Node* LL(Node* root) {
     left->right = root;
 
     // Update heights
-    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
-    left->height = 1 + fmax(GetHeight(left->left), GetHeight(left->right));
+    root->height = ONE + fmax(GetHeight(root->left), GetHeight(root->right));
+    left->height = ONE + fmax(GetHeight(left->left), GetHeight(left->right));
 
     return left;
 }
 
-// Insert a key into the tree
-// O(log(n))
+// Insert a node into the tree
+// O(log(n)) - אורך הקךט המייצג את מספר הצמתים בעץ n
 Node* Insert(Node* root, void* info, us newKey) {
     // Root is empty
     if (!root) {
@@ -98,12 +96,12 @@ Node* Insert(Node* root, void* info, us newKey) {
     }
 
     // update height and the balance factor of the current node
-    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
+    root->height = ONE + fmax(GetHeight(root->left), GetHeight(root->right));
     currBF = GetBF(root);
 
     // Perform rotations
     // LL
-    if (currBF > 1 && newKey < root->left->key) {
+    if (currBF > ONE && newKey < root->left->key) {
         return LL(root);
     }
     // RR
@@ -111,7 +109,7 @@ Node* Insert(Node* root, void* info, us newKey) {
         return RR(root);
     }
     // LR
-    else if (currBF > 1 && newKey > root->left->key) {
+    else if (currBF > ONE && newKey > root->left->key) {
         root->left = RR(root->left);
         return LL(root);
     }
@@ -125,6 +123,8 @@ Node* Insert(Node* root, void* info, us newKey) {
 }
 
 // Insert a key to the avl - but for the screening tree
+// A mothod for the structure of each node has a LLL in it!
+// O(1)
 Node* NewScreeningNode(void* info, us key) {
     LLLManager manager;
     Node* newNode = (Node*)malloc(sizeof(Node));
@@ -132,12 +132,13 @@ Node* NewScreeningNode(void* info, us key) {
     InitLLL(&manager);
     PushLLL(&manager, info);
     newNode->info = (void*) manager;
-    newNode->height = 1;
+    newNode->height = ONE;
     newNode->left = NULL;
     newNode->right = NULL;
     newNode->key = key;
     return newNode;
 }
+// O(log(n)) - אורך הקךט המייצג את מספר הצמתים בעץ n
 Node* InsertScreeningNode(Node* root, void* info, us newKey) {
     // Root is empty
     if (!root) {
@@ -145,6 +146,8 @@ Node* InsertScreeningNode(Node* root, void* info, us newKey) {
     }
     if (root->key == newKey)
     {
+        // If the key is found, we dont create a new node
+        // but adding the info to the LLL
         PushLLL(&(LLLManager)root->info, info);
         return root;
     }
@@ -162,12 +165,12 @@ Node* InsertScreeningNode(Node* root, void* info, us newKey) {
     }
 
     // update height and the balance factor of the current node
-    root->height = 1 + fmax(GetHeight(root->left), GetHeight(root->right));
+    root->height = ONE + fmax(GetHeight(root->left), GetHeight(root->right));
     currBF = GetBF(root);
 
     // Perform rotations
     // LL
-    if (currBF > 1 && newKey < root->left->key) {
+    if (currBF > ONE && newKey < root->left->key) {
         return LL(root);
     }
     // RR
@@ -175,7 +178,7 @@ Node* InsertScreeningNode(Node* root, void* info, us newKey) {
         return RR(root);
     }
     // LR
-    else if (currBF > 1 && newKey > root->left->key) {
+    else if (currBF > ONE && newKey > root->left->key) {
         root->left = RR(root->left);
         return LL(root);
     }
@@ -189,42 +192,60 @@ Node* InsertScreeningNode(Node* root, void* info, us newKey) {
 }
 
 // Search for a key in the tree
-// O(log(n))
+// O(log(n)) - אורך הקךט המייצג את מספר הצמתים בעץ n
 Node* Search(Node* root, us key) {
     if (!root) {
+        // Node is empty - return NULL
         return root;
     }
     else {
         us currKey = root->key;
 
+        // Search left
         if (key < currKey) {
             return Search(root->left, key);
         }
+        // Search right
         else if (key > currKey) {
             return Search(root->right, key);
         }
+        // Found it!
         else {
             return root;
         }
     }
 }
 
-// O(log(n))
+// O(log(n)) - אורך הקךט המייצג את מספר הצמתים בעץ n
 Node* FindMin(Node* root)
 {
-    if (IsLeaf(root))
+    if (!root)
+        // Tree is empty
         return root;
     else {
-        return FindMin(root->left);
+        // Found it!
+        if (IsLeaf(root))
+            return root;
+
+        // Go left!
+        else
+            return FindMin(root->left);
     }
 }
 
-// O(log(n))
+// O(log(n)) - אורך הקךט המייצג את מספר הצמתים בעץ n
 Node* FindMax(Node* root)
 {
-    if (IsLeaf(root))
+    if (!root)
+        // Tree is empty
         return root;
     else {
-        return FindMin(root->right);
+        // Found it!
+        if (IsLeaf(root))
+            return root;
+
+        // Go right!
+        else
+            return FindMax(root->right);
     }
 }

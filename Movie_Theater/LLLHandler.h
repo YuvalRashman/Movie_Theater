@@ -1,4 +1,4 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 #include <stdio.h>
 
 typedef short Bool;
@@ -8,11 +8,13 @@ typedef struct LLL {
 	struct LLL* next;
 } LLL, *LLLNodePtr, *LLLManager, **LLLManagerPtr;
 
+// O(1)
 void InitLLL(LLLManager* managerPtr)
 {
 	*managerPtr = NULL;
 }
 
+// O(1)
 void PushLLL(LLLManager* managerPtr, void* info)
 {
 	LLLNodePtr nodePtr = (LLLNodePtr)malloc(sizeof(LLL));
@@ -21,6 +23,7 @@ void PushLLL(LLLManager* managerPtr, void* info)
 	*managerPtr = nodePtr;
 }
 
+// O(1)
 void AddAfterLLL(LLLNodePtr nodePtr, void* info)
 {
 	LLLNodePtr newNodePtr = (LLLNodePtr)malloc(sizeof(LLL));
@@ -29,6 +32,7 @@ void AddAfterLLL(LLLNodePtr nodePtr, void* info)
 	nodePtr->next = newNodePtr;
 }
 
+// O(1)
 void PopLLL(LLLManager* managerPtr)
 {
 	LLLNodePtr temp = *managerPtr;
@@ -37,6 +41,7 @@ void PopLLL(LLLManager* managerPtr)
 	free(temp);
 }
 
+// O(1)
 void DeleteAfterLLL(LLLNodePtr nodePtr)
 {
 	LLLNodePtr temp = nodePtr->next;
@@ -44,23 +49,31 @@ void DeleteAfterLLL(LLLNodePtr nodePtr)
 	free(temp->info);
 	free(temp);
 }
-Bool IsEmpty(LLLManager managerPtr)
+
+// O(1)
+Bool IsEmptyLLL(LLLManager managerPtr)
 {
-	return managerPtr == NULL;
+	return !managerPtr;
 }
 
+// O(min(n,m))
+// m - מספר הצמתים ברשימה ראשונה
+// n - מספר הצמתים ברשימה שנייה
 void CombineLists(LLLManagerPtr managerPtr, LLLManagerPtr secondManagerPtr)
 {
 	LLLNodePtr lllIter = *managerPtr;
 
-	if (!lllIter)
+	// If first list is empty
+	if (IsEmptyLLL(lllIter))
 		*managerPtr = *secondManagerPtr;
 	else {
+		// Get end of first list
 		while (lllIter->next)
 		{
 			lllIter = lllIter->next;
 		}
 
+		// Combine lists
 		lllIter->next = *secondManagerPtr;
 	}
 }
