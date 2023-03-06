@@ -544,6 +544,7 @@ void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 	screenPtr->seatsLeft--;
 }
 
+// show the theater avilable seats so you will know where you can and cant buy seats.
 void ShowAvilableSeats(char* movieName, us movieId, us hour, us day) {
 	MoviePtr movie = FindMovie(movieName, movieId);
 	LLLNodePtr listNode = (((LLLManager)Search(movie->days[day], hour)->info));
@@ -554,6 +555,7 @@ void ShowAvilableSeats(char* movieName, us movieId, us hour, us day) {
 	ShowMovieSeats(((ScreeningPtr)listNode->info));
 }
 
+// Show movie Ticket By given screening and seet only Ui funcsion
 void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 {
 	printf("\n");
@@ -573,10 +575,12 @@ void ShowMovieTicket(ScreeningPtr screenPtr, us chosenSeat)
 	printf("=========================================================\n");
 }
 
+//O(mlogmlogn) n - number of movies m - number of screening in given hour 
+// Buy Movie Ticket by movie name, id, hour and day + seat you want.
 void BuyTicket(char* movieName, us movieId, us seat, us hour, us day) {
-	MoviePtr movie = FindMovie(movieName, movieId);
+	MoviePtr movie = FindMovie(movieName, movieId); // find movie ptr by movie name and id
 	LLLNodePtr listNode = (((LLLManager)Search(movie->days[day], hour)->info));
-	while (((ScreeningPtr)listNode->info)->seatsLeft == 0)
+	while (((ScreeningPtr)listNode->info)->seatsLeft == 0) // cheack if there is avilable seats in this screening
 	{
 		listNode = listNode->next;
 	}
