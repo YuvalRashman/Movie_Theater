@@ -430,14 +430,14 @@ void InitData() {
 	us* arr2 = (us*)malloc(sizeof(us) * 3);
 	arr2[0] = 4;
 	arr2[1] = 3;
-	arr2[3] = 3;
+	arr2[2] = 3;
 	theaters[1] = newDataTheater(1, 3, 10, arr2, 16);
 	us* arr3 = (us*)malloc(sizeof(us) * 5);
 	arr3[0] = 8;
 	arr3[1] = 6;
+	arr3[2] = 6;
 	arr3[3] = 6;
-	arr3[4] = 6;
-	arr3[5] = 12;
+	arr3[4] = 12;
 	theaters[2] = newDataTheater(2, 5, 12, arr3, 38);
 	us* arr4 = (us*)malloc(sizeof(us) * 2);
 	arr4[0] = 5;
@@ -451,7 +451,7 @@ void InitData() {
 	arr5[4] = 10;
 	arr5[5] = 10;
 	arr5[6] = 10;
-	theaters[4] = newDataTheater(4, 6, 10, arr5, 60);
+	theaters[4] = newDataTheater(4, 7, 10, arr5, 60);
 
 	// create screening
 	newScreening(0, FindMovie("ant man and the wasp", 1), 0, 6);
@@ -511,21 +511,24 @@ void InitData() {
 
 // **** Tickets Handlers ****
 
-//Movie Seats
+// Movie Seats
 void ShowMovieSeats(ScreeningPtr screenPtr)
 {
-	printf("\n");
 	int seatsInRow;
 	int bit;
 	us totalSeats = ZERO;
 	int row;
-	MovieTheaterPtr th;
-	for (us rowOffset = ZERO; rowOffset < theaters[screenPtr->theaterId]->rowNum; rowOffset++)
+	MovieTheaterPtr th = theaters[screenPtr->theaterId];
+
+	// For each row
+	for (us rowOffset = ZERO; rowOffset < th->rowNum; rowOffset++)
 	{
-		th = theaters[screenPtr->theaterId];
 		seatsInRow = th->rowsSeats[rowOffset];
+
+		// For each seat
 		for (us seat = ZERO; seat < seatsInRow; seat++)
 		{
+			// PrintBit
 			bit = (screenPtr->seats[(totalSeats / EIGHT)] & (ONE << totalSeats % EIGHT)) >> (totalSeats % EIGHT);
 			printf("%d", bit);
 
@@ -541,7 +544,7 @@ void PickMovieSeats(ScreeningPtr screenPtr, us seat)
 	screenPtr->seatsLeft--;
 }
 
-void ShowAvilableSeats(char* movieName, us movieId, us seat, us hour, us day) {
+void ShowAvilableSeats(char* movieName, us movieId, us hour, us day) {
 	MoviePtr movie = FindMovie(movieName, movieId);
 	LLLNodePtr listNode = (((LLLManager)Search(movie->days[day], hour)->info));
 	while (((ScreeningPtr)listNode->info)->seatsLeft == 0)
@@ -613,22 +616,72 @@ int main()
 	InitData();
 
 	// Show movies
+	printf(" ------ ALL Movies -----\n");
 	printMovieCodes();
-	
+	printf("\n\n");
+
+	// Search all first day
+	printf(" ------ Movies In firstDay -----\n");
+	PrintScreeningsList(SearchDay(weekSchedule->weekSchedule, 0));
+	printf("\n\n");
+
+	// Search first day from hour 3
+	printf(" ------ Movies In firstDay from hour 3 -----\n");
+	PrintScreeningsList(SearchDayFromHour(weekSchedule->weekSchedule, 0, 3));
+	printf("\n\n");
+
+	// Search first day in hour 4
+	printf(" ------ Movies In firstDay in hour 4 -----\n");
+	PrintScreeningsList(SearchDayHour(weekSchedule->weekSchedule, 0, 4));
+	printf("\n\n");
+
+	// Movie Seats in theater 2 hour 5
+	printf(" ------ Seats in first day in hour 5 -----\n");
+	ShowAvilableSeats("star wars", 3, 5, 0);
+	printf("\n\n");
+
+	// Buy new ticket
+	printf(" ------ But seat in first day in hour 5 of star wars -----\n");
+	BuyTicket("start wars", 3, 2, 5, 0);
+	printf("\n\n");
+
+	// Movie Seats in theater 2 hour 5
+	printf(" ------ Seats in first day in hour 5 -----\n");
+	ShowAvilableSeats("star wars", 3, 5, 0);
+	printf("\n\n");
+
 	weekSchedule->weekSchedule[0]->screeningsSchedule[0][4]->seatsLeft -= 6;
 	weekSchedule->weekSchedule[0]->screeningsSchedule[1][1]->seatsLeft -= 3;
-
 	weekSchedule->weekSchedule[3]->screeningsSchedule[0][4]->seatsLeft -= 6;
 	weekSchedule->weekSchedule[3]->screeningsSchedule[1][1]->seatsLeft -= 3;
+	weekSchedule->weekSchedule[0]->screeningsSchedule[0][4]->seatsLeft -= 6;
+	weekSchedule->weekSchedule[0]->screeningsSchedule[1][1]->seatsLeft -= 3;
+	weekSchedule->weekSchedule[3]->screeningsSchedule[0][4]->seatsLeft -= 6;
+	weekSchedule->weekSchedule[3]->screeningsSchedule[1][1]->seatsLeft -= 3;
+	WeekSummery weekSummery = MakeWeekSummery(theaters, weekSchedule, moviesNum);
 
-	WeekSummery week = MakeWeekSummery(theaters, weekSchedule->weekSchedule, moviesNum);
+	// Bussiest day
+	printf(" ------ Bussiest day -----\n");
+	printf("%d", FindBussiestDay(&weekSummery, moviesNum));
+	printf("\n\n");
 
+	// Bussiest day
+	printf(" ------ Bussiest day -----\n");
+	printf("%d", FindBussiestDay(&weekSummery, moviesNum));
+	printf("\n\n");
+
+	// Most wanted movie
+	printf(" ------ Most wanted movie -----\n");
+	printf("%d", FindMostWantedMovie(&weekSummery, moviesNum));
+	printf("\n\n");
+
+	// The confidence interval
+	printf(" ------ Expectations for a future day -----\n");
 	double lower = 0;
 	double upper = 0;
+	ExpectationsPerDay(&weekSummery, moviesNum, &lower, &upper);
+	printf("The confidence interval is between %lf - %lf\n\n", lower, upper);
 
-	ExpectationsPerDay(&week, moviesNum, &lower, &upper);
-
-	printf("%lf - %lf\n", lower, upper);
 
 	FreeAll();
 }
